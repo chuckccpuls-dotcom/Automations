@@ -1,0 +1,218 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Coverage Search</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      max-width: 600px;
+    }
+
+    select, input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+    }
+
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .covered {
+      color: green;
+    }
+
+    .not-covered {
+      color: red;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Item Coverage Search</h2>
+
+<select id="mainCategory">
+  <option value="">Select Main Category</option>
+</select>
+
+<select id="subCategory" disabled>
+  <option value="">Select Sub Category</option>
+</select>
+
+<input
+  id="searchItem"
+  placeholder="Type item name..."
+  disabled
+>
+
+<div id="result" class="result"></div>
+
+<script>
+/* ===============================
+   GOOGLE SHEET (CORS-SAFE)
+================================ */
+const sheetURL =
+  "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
+
+let data = [];
+
+/* ===============================
+   SAFE CSV PARSER
+================================ */
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
+  let value = "";
+  let inQuotes = false;
+
+  for (let char of text) {
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      row.push(value);
+      value = "";
+    } else if (char === "\n" && !inQuotes) {
+      row.push(value);
+      rows.push(row);
+      row = [];
+      value = "";
+    } else {
+      value += char;
+    }
+  }
+  row.push(value);
+  rows.push(row);
+  return rows;
+}
+
+/* ===============================
+   FETCH DATA
+================================ */
+fetch(sheetURL)
+  .then(res => res.text())
+  .then(csv => {
+    const rows = parseCSV(csv).slice(1);
+
+    data = rows.map(r => ({
+      main: r[0]?.trim(),
+      sub: r[1]?.trim(),
+      item: r[2]?.trim(),
+      coverage: r[3]?.trim()
+    }));
+
+    loadMainCategories();
+  })
+  .catch(err => console.error("Fetch failed:", err));
+
+/* ===============================
+   LOAD MAIN CATEGORIES
+================================ */
+function loadMainCategories() {
+  const mainSelect = document.getElementById("mainCategory");
+  const mains = [...new Set(data.map(d => d.main))];
+
+  mains.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    mainSelect.appendChild(opt);
+  });
+}
+
+/* ===============================
+   MAIN → SUB
+================================ */
+document.getElementById("mainCategory").addEventListener("change", function () {
+  const subSelect = document.getElementById("subCategory");
+  subSelect.innerHTML = `<option value="">Select Sub Category</option>`;
+  subSelect.disabled = !this.value;
+
+  document.getElementById("searchItem").disabled = true;
+  document.getElementById("result").textContent = "";
+  document.getElementById("result").className = "result";
+
+  const subs = data
+    .filter(d => d.main === this.value)
+    .map(d => d.sub);
+
+  [...new Set(subs)].forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    subSelect.appendChild(opt);
+  });
+});
+
+/* ===============================
+   SUB → SEARCH
+================================ */
+document.getElementById("subCategory").addEventListener("change", function () {
+  document.getElementById("searchItem").disabled = !this.value;
+  document.getElementById("result").textContent = "";
+  document.getElementById("result").className = "result";
+});
+
+/* ===============================
+   FUZZY SIMILARITY
+================================ */
+function similarity(item, query) {
+  if (item === query) return 100;
+  if (item.startsWith(query)) return 90;
+  if (item.includes(query)) return 75;
+
+  let score = 0;
+  for (let c of query) {
+    if (item.includes(c)) score++;
+  }
+  return (score / item.length) * 60;
+}
+
+/* ===============================
+   SEARCH + COLOR LOGIC
+================================ */
+document.getElementById("searchItem").addEventListener("input", function () {
+  const main = mainCategory.value;
+  const sub = subCategory.value;
+  const query = this.value.trim().toLowerCase();
+  const result = document.getElementById("result");
+
+  if (!query) {
+    result.textContent = "";
+    result.className = "result";
+    return;
+  }
+
+  const matches = data
+    .filter(d => d.main === main && d.sub === sub)
+    .map(d => ({
+      ...d,
+      score: similarity(d.item.toLowerCase(), query)
+    }))
+    .filter(d => d.score > 30)
+    .sort((a, b) => b.score - a.score);
+
+  if (matches.length) {
+    const best = matches[0];
+    const coverageText = best.coverage.toLowerCase();
+
+    result.textContent = `${best.item} — ${best.coverage}`;
+
+    if (coverageText.includes("not")) {
+      result.className = "result not-covered";
+    } else {
+      result.className = "result covered";
+    }
+  } else {
+    result.textContent = "Item not found";
+    result.className = "result not-covered";
+  }
+});
+</script>
+
+</body>
+</html>
