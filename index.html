@@ -275,11 +275,17 @@ fetch(coverageURL).then(r=>r.text()).then(t=>{
 });
 
 /* DEFECTS */
-fetch(defectURL).then(r=>r.text()).then(t=>{
-  defectData = parseCSV(t).map(r=>({
-    model:r[0], part:r[1], issue:r[2]
-  }));
-});
+fetch(defectURL)
+  .then(r => r.text())
+  .then(csv => {
+    const rows = parseCSV(csv).slice(1); // skip header
+
+    defectData = rows.map(r => ({
+      model: r[0]?.trim(),
+      part: r[1]?.trim(),
+      issue: r[2]?.trim()   // ✅ Column C now preserved
+    }));
+  });
 
 /* DEFECT SEARCH */
 function searchDefects() {
@@ -299,3 +305,4 @@ function searchDefects() {
 
 </body>
 </html>
+
