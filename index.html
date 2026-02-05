@@ -1,39 +1,95 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Coverage Search</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 30px;
-      max-width: 600px;
-    }
+<meta charset="UTF-8">
+<title>All Internal Tools</title>
 
-    select, input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      font-size: 16px;
-    }
+<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 
-    .result {
-      margin-top: 20px;
-      font-size: 18px;
-      font-weight: bold;
-    }
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+}
 
-    .covered {
-      color: green;
-    }
+nav {
+  margin-bottom: 25px;
+}
 
-    .not-covered {
-      color: red;
-    }
-  </style>
+nav button {
+  padding: 10px 15px;
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+section {
+  display: none;
+}
+
+section.active {
+  display: block;
+}
+
+input, textarea, select, button {
+  padding: 8px;
+  font-size: 16px;
+  margin: 6px 0;
+}
+
+.result {
+  margin-top: 15px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.covered { color: green; }
+.not-covered { color: red; }
+</style>
 </head>
+
 <body>
 
+<h1>Internal Tools</h1>
+
+<nav>
+  <button onclick="show('coi')">COI Editor</button>
+  <button onclick="show('calc')">Reverse Calculator</button>
+  <button onclick="show('coverage')">Coverage Search</button>
+</nav>
+
+<!-- ===================== COI EDITOR ===================== -->
+<section id="coi" class="active">
+<h2>COI Editor</h2>
+
+<label>Date (MM/DD/YYYY)</label><br>
+<input type="text" id="date" placeholder="MM/DD/YYYY"><br>
+
+<label>Additional Insured</label><br>
+<textarea id="description" rows="5"></textarea><br>
+
+<label>Certificate Holder</label><br>
+<textarea id="holder" rows="3"></textarea><br>
+
+<label>Choose PDF (optional)</label><br>
+<input type="file" id="pdfFile"><br><br>
+
+<button id="download">Download Edited PDF</button>
+</section>
+
+<!-- ===================== CALCULATOR ===================== -->
+<section id="calc">
+<h2>Reverse Markup Calculator</h2>
+
+<input type="number" id="numberInput" placeholder="Type a number" step="any">
+<button onclick="calculateOriginal()">Submit</button>
+
+<div id="calcResult" class="result"></div>
+</section>
+
+<!-- ===================== COVERAGE ===================== -->
+<section id="coverage">
 <h2>Item Coverage Search</h2>
 
 <select id="mainCategory">
@@ -44,179 +100,178 @@
   <option value="">Select Sub Category</option>
 </select>
 
-<input
-  id="searchItem"
-  placeholder="Type item name..."
-  disabled
->
+<input id="searchItem" placeholder="Type item name..." disabled>
 
 <div id="result" class="result"></div>
+</section>
 
+<!-- ===================== NAV ===================== -->
 <script>
-/* ===============================
-   GOOGLE SHEET (CORS-SAFE)
-================================ */
-const sheetURL =
-  "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
+function show(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+</script>
 
-let data = [];
+<!-- ===================== COI SCRIPT ===================== -->
+<script>
+document.getElementById('download').addEventListener('click', async () => {
+  try {
+    let bytes;
+    const file = pdfFile.files[0];
 
-/* ===============================
-   SAFE CSV PARSER
-================================ */
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let value = "";
-  let inQuotes = false;
-
-  for (let char of text) {
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      row.push(value);
-      value = "";
-    } else if (char === "\n" && !inQuotes) {
-      row.push(value);
-      rows.push(row);
-      row = [];
-      value = "";
+    if (file) {
+      bytes = await file.arrayBuffer();
     } else {
-      value += char;
+      const res = await fetch(
+        'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
+      );
+      bytes = await res.arrayBuffer();
     }
-  }
-  row.push(value);
-  rows.push(row);
-  return rows;
-}
 
-/* ===============================
-   FETCH DATA
-================================ */
-fetch(sheetURL)
-  .then(res => res.text())
-  .then(csv => {
-    const rows = parseCSV(csv).slice(1);
+    const pdf = await PDFLib.PDFDocument.load(bytes);
+    const page = pdf.getPages()[0];
+    const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
 
-    data = rows.map(r => ({
-      main: r[0]?.trim(),
-      sub: r[1]?.trim(),
-      item: r[2]?.trim(),
-      coverage: r[3]?.trim()
-    }));
+    const size = 8;
+    const line = 10;
 
-    loadMainCategories();
-  })
-  .catch(err => console.error("Fetch failed:", err));
+    page.drawText(date.value, { x: 530, y: 740, font, size });
 
-/* ===============================
-   LOAD MAIN CATEGORIES
-================================ */
-function loadMainCategories() {
-  const mainSelect = document.getElementById("mainCategory");
-  const mains = [...new Set(data.map(d => d.main))];
+    let y = 182;
+    description.value.split("\n").forEach(l => {
+      page.drawText(l, { x: 50, y, font, size });
+      y -= line;
+    });
 
-  mains.forEach(m => {
-    const opt = document.createElement("option");
-    opt.value = m;
-    opt.textContent = m;
-    mainSelect.appendChild(opt);
-  });
-}
+    y = 84;
+    holder.value.split("\n").forEach(l => {
+      page.drawText(l, { x: 50, y, font, size });
+      y -= line;
+    });
 
-/* ===============================
-   MAIN → SUB
-================================ */
-document.getElementById("mainCategory").addEventListener("change", function () {
-  const subSelect = document.getElementById("subCategory");
-  subSelect.innerHTML = `<option value="">Select Sub Category</option>`;
-  subSelect.disabled = !this.value;
-
-  document.getElementById("searchItem").disabled = true;
-  document.getElementById("result").textContent = "";
-  document.getElementById("result").className = "result";
-
-  const subs = data
-    .filter(d => d.main === this.value)
-    .map(d => d.sub);
-
-  [...new Set(subs)].forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    subSelect.appendChild(opt);
-  });
-});
-
-/* ===============================
-   SUB → SEARCH
-================================ */
-document.getElementById("subCategory").addEventListener("change", function () {
-  document.getElementById("searchItem").disabled = !this.value;
-  document.getElementById("result").textContent = "";
-  document.getElementById("result").className = "result";
-});
-
-/* ===============================
-   FUZZY SIMILARITY
-================================ */
-function similarity(item, query) {
-  if (item === query) return 100;
-  if (item.startsWith(query)) return 90;
-  if (item.includes(query)) return 75;
-
-  let score = 0;
-  for (let c of query) {
-    if (item.includes(c)) score++;
-  }
-  return (score / item.length) * 60;
-}
-
-/* ===============================
-   SEARCH + COLOR LOGIC
-================================ */
-document.getElementById("searchItem").addEventListener("input", function () {
-  const main = mainCategory.value;
-  const sub = subCategory.value;
-  const query = this.value.trim().toLowerCase();
-  const result = document.getElementById("result");
-
-  if (!query) {
-    result.textContent = "";
-    result.className = "result";
-    return;
-  }
-
-  const matches = data
-    .filter(d => d.main === main && d.sub === sub)
-    .map(d => ({
-      ...d,
-      score: similarity(d.item.toLowerCase(), query)
-    }))
-    .filter(d => d.score > 30)
-    .sort((a, b) => b.score - a.score);
-
-  if (matches.length) {
-    const best = matches[0];
-    const coverageText = best.coverage.toLowerCase();
-
-    result.textContent = `${best.item} — ${best.coverage}`;
-
-    if (coverageText.includes("not")) {
-      result.className = "result not-covered";
-    } else {
-      result.className = "result covered";
-    }
-  } else {
-    result.textContent = "Item not found";
-    result.className = "result not-covered";
+    const out = await pdf.save();
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
+    a.download = "COI Copy.pdf";
+    a.click();
+  } catch (e) {
+    alert(e.message);
   }
 });
 </script>
 
+<!-- ===================== CALCULATOR SCRIPT ===================== -->
+<script>
+function calculateOriginal() {
+  const x = parseFloat(numberInput.value);
+  const r = document.getElementById("calcResult");
+
+  if (isNaN(x)) {
+    r.textContent = "Please enter a valid number.";
+    return;
+  }
+
+  if (x === 20) {
+    r.textContent = "Associated value: 10.00 (100% markup)";
+    return;
+  }
+
+  let original, markup;
+
+  if (x >= 300) {
+    original = x / 1.10;
+    markup = 10;
+  } else {
+    const buckets = [
+      { min:1,max:10,d:2 },
+      { min:11,max:20,d:1.8 },
+      { min:21,max:30,d:1.65 },
+      { min:31,max:60,d:1.45 },
+      { min:61,max:99,d:1.4 },
+      { min:100,max:159,d:1.3 },
+      { min:160,max:299,d:1.15 }
+    ];
+
+    for (const b of buckets) {
+      const c = x / b.d;
+      if (c >= b.min && c <= b.max) {
+        original = c;
+        markup = ((b.d - 1) * 100).toFixed(0);
+        break;
+      }
+    }
+  }
+
+  r.textContent = `Associated value: ${original.toFixed(2)} (${markup}% markup)`;
+}
+</script>
+
+<!-- ===================== COVERAGE SCRIPT ===================== -->
+<script>
+const sheetURL =
+"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
+
+let data = [];
+
+function parseCSV(text) {
+  const rows = [];
+  let row = [], val = "", q = false;
+
+  for (let c of text) {
+    if (c === '"') q = !q;
+    else if (c === "," && !q) { row.push(val); val = ""; }
+    else if (c === "\n" && !q) { row.push(val); rows.push(row); row=[]; val=""; }
+    else val += c;
+  }
+  row.push(val); rows.push(row);
+  return rows;
+}
+
+fetch(sheetURL)
+.then(r => r.text())
+.then(csv => {
+  data = parseCSV(csv).slice(1).map(r => ({
+    main:r[0], sub:r[1], item:r[2], coverage:r[3]
+  }));
+  [...new Set(data.map(d => d.main))].forEach(m =>
+    mainCategory.add(new Option(m,m))
+  );
+});
+
+mainCategory.onchange = () => {
+  subCategory.innerHTML = `<option value="">Select Sub</option>`;
+  subCategory.disabled = !mainCategory.value;
+  searchItem.disabled = true;
+  data.filter(d => d.main === mainCategory.value)
+      .map(d => d.sub)
+      .filter((v,i,a)=>a.indexOf(v)===i)
+      .forEach(s => subCategory.add(new Option(s,s)));
+};
+
+subCategory.onchange = () => {
+  searchItem.disabled = !subCategory.value;
+};
+
+searchItem.oninput = () => {
+  const q = searchItem.value.toLowerCase();
+  const m = data.find(d =>
+    d.main===mainCategory.value &&
+    d.sub===subCategory.value &&
+    d.item.toLowerCase().includes(q)
+  );
+
+  if (m) {
+    result.textContent = `${m.item} — ${m.coverage}`;
+    result.className = m.coverage.toLowerCase().includes("not")
+      ? "result not-covered"
+      : "result covered";
+  } else {
+    result.textContent = "Item not found";
+    result.className = "result not-covered";
+  }
+};
+</script>
+
 </body>
 </html>
-
-
-
- 
