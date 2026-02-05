@@ -22,7 +22,7 @@ body {
 .panel {
   display: none;
   background: #a9c2e3;
-  width: 520px;
+  width: 600px;
   min-height: 360px;
   padding: 40px;
   box-sizing: border-box;
@@ -40,7 +40,7 @@ h2 {
 
 .subtext {
   font-size: 12px;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .helper {
@@ -79,6 +79,7 @@ input, textarea, select, button {
   font-size: 14px;
   padding: 6px;
   margin: 6px 0;
+  width: 100%;
 }
 
 .result {
@@ -92,7 +93,6 @@ input, textarea, select, button {
 </head>
 
 <body>
-
 <div id="app">
 
 <!-- ================= HOME ================= -->
@@ -103,31 +103,31 @@ input, textarea, select, button {
   </p>
 
   <div class="menu">
-    <div onclick="navigate('coi')">COI Editor</div>
-    <div onclick="navigate('calc')">Reverse Calculator</div>
-    <div onclick="navigate('coverage')">Coverage Search</div>
+    <div onclick="navigate('coi')">COI</div>
+    <div onclick="navigate('calc')">Calculator</div>
+    <div onclick="navigate('coverage')">Coverage</div>
+    <div onclick="navigate('defects')">Manufacturer Defects</div>
   </div>
 
   <p class="footer">Let Chuck know if you need more shortcuts</p>
 </section>
 
-<!-- ================= COI EDITOR ================= -->
+<!-- ================= COI ================= -->
 <section id="coi" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
 
 <h2>COI Editor</h2>
-
 <p class="helper">This is for customers requesting a copy of our COI</p>
 
-<label>Appointment Date (MM/DD/YYYY)</label><br>
-<input type="text" id="date"><br>
+<label>Appointment Date (MM/DD/YYYY)</label>
+<input type="text" id="date">
 
 <label>Additional Insured</label>
 <p class="helper">We only allow up to 3 additional insured</p>
-<textarea id="description" rows="4"></textarea><br>
+<textarea id="description" rows="4"></textarea>
 
-<label>Certificate Holder</label><br>
-<textarea id="holder" rows="3"></textarea><br><br>
+<label>Certificate Holder</label>
+<textarea id="holder" rows="3"></textarea><br>
 
 <button id="download">Download Edited PDF</button>
 </section>
@@ -163,6 +163,19 @@ input, textarea, select, button {
 <div id="result" class="result"></div>
 </section>
 
+<!-- ================= MANUFACTURER DEFECTS ================= -->
+<section id="defects" class="panel">
+<button class="back" onclick="navigate('home')">← Back</button>
+
+<h2>Manufacturer Defects</h2>
+<p class="helper">Please type the model number of the appliance to check</p>
+
+<input id="modelSearch" placeholder="Enter model number">
+<button onclick="searchDefects()">Search</button>
+
+<div id="defectResult" class="result"></div>
+</section>
+
 </div>
 
 <!-- ================= NAV ================= -->
@@ -176,152 +189,112 @@ function navigate(id) {
 <!-- ================= COI SCRIPT ================= -->
 <script>
 document.getElementById('download').addEventListener('click', async () => {
-  try {
-    const res = await fetch(
-      'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
-    );
-    const bytes = await res.arrayBuffer();
+  const res = await fetch(
+    'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
+  );
+  const bytes = await res.arrayBuffer();
 
-    const pdf = await PDFLib.PDFDocument.load(bytes);
-    const page = pdf.getPages()[0];
-    const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  const page = pdf.getPages()[0];
+  const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
 
-    const size = 8;
-    const line = 10;
+  const size = 8, line = 10;
 
-    page.drawText(date.value, { x: 530, y: 740, font, size });
+  page.drawText(date.value, { x: 530, y: 740, font, size });
 
-    let y = 182;
-    description.value.split("\n").forEach(l => {
-      page.drawText(l, { x: 50, y, font, size });
-      y -= line;
-    });
+  let y = 182;
+  description.value.split("\n").forEach(l => {
+    page.drawText(l, { x: 50, y, font, size });
+    y -= line;
+  });
 
-    y = 84;
-    holder.value.split("\n").forEach(l => {
-      page.drawText(l, { x: 50, y, font, size });
-      y -= line;
-    });
+  y = 84;
+  holder.value.split("\n").forEach(l => {
+    page.drawText(l, { x: 50, y, font, size });
+    y -= line;
+  });
 
-    const out = await pdf.save();
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
-    a.download = "COI Copy.pdf";
-    a.click();
-  } catch (e) {
-    alert(e.message);
-  }
+  const out = await pdf.save();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
+  a.download = "COI Copy.pdf";
+  a.click();
 });
 </script>
 
-<!-- ================= CALCULATOR SCRIPT ================= -->
+<!-- ================= CALCULATOR ================= -->
 <script>
 function calculateOriginal() {
   const x = parseFloat(numberInput.value);
-  const r = document.getElementById("calcResult");
-
   if (isNaN(x)) {
-    r.textContent = "Please enter a valid number.";
-    return;
-  }
-
-  if (x === 20) {
-    r.textContent = "Original Part Cost: 10.00";
+    calcResult.textContent = "Please enter a valid number.";
     return;
   }
 
   let original;
-
-  if (x >= 300) {
-    original = x / 1.10;
-  } else {
+  if (x === 20) original = 10;
+  else if (x >= 300) original = x / 1.1;
+  else {
     const buckets = [
-      { min:1,max:10,d:2 },
-      { min:11,max:20,d:1.8 },
-      { min:21,max:30,d:1.65 },
-      { min:31,max:60,d:1.45 },
-      { min:61,max:99,d:1.4 },
-      { min:100,max:159,d:1.3 },
-      { min:160,max:299,d:1.15 }
+      [1,10,2],[11,20,1.8],[21,30,1.65],
+      [31,60,1.45],[61,99,1.4],
+      [100,159,1.3],[160,299,1.15]
     ];
-
     for (const b of buckets) {
-      const c = x / b.d;
-      if (c >= b.min && c <= b.max) {
-        original = c;
-        break;
-      }
+      const c = x / b[2];
+      if (c >= b[0] && c <= b[1]) original = c;
     }
   }
-
-  r.textContent = `Original Part Cost: ${original.toFixed(2)}`;
+  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
 }
 </script>
 
-<!-- ================= COVERAGE SCRIPT ================= -->
+<!-- ================= COVERAGE + DEFECT DATA ================= -->
 <script>
-const sheetURL =
+const coverageURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
 
-let data = [];
+const defectURL =
+"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
+
+let coverageData = [];
+let defectData = [];
 
 function parseCSV(text) {
-  const rows = [];
-  let row = [], val = "", q = false;
-
-  for (let c of text) {
-    if (c === '"') q = !q;
-    else if (c === "," && !q) { row.push(val); val = ""; }
-    else if (c === "\n" && !q) { row.push(val); rows.push(row); row=[]; val=""; }
-    else val += c;
-  }
-  row.push(val); rows.push(row);
-  return rows;
+  return text.split("\n").slice(1).map(r => r.split(","));
 }
 
-fetch(sheetURL)
-.then(r => r.text())
-.then(csv => {
-  data = parseCSV(csv).slice(1).map(r => ({
+/* COVERAGE */
+fetch(coverageURL).then(r=>r.text()).then(t=>{
+  coverageData = parseCSV(t).map(r=>({
     main:r[0], sub:r[1], item:r[2], coverage:r[3]
   }));
-  [...new Set(data.map(d => d.main))].forEach(m =>
-    mainCategory.add(new Option(m,m))
-  );
+  [...new Set(coverageData.map(d=>d.main))].forEach(m=>{
+    mainCategory.add(new Option(m,m));
+  });
 });
 
-mainCategory.onchange = () => {
-  subCategory.innerHTML = `<option value="">Select Sub</option>`;
-  subCategory.disabled = !mainCategory.value;
-  searchItem.disabled = true;
-  data.filter(d => d.main === mainCategory.value)
-      .map(d => d.sub)
-      .filter((v,i,a)=>a.indexOf(v)===i)
-      .forEach(s => subCategory.add(new Option(s,s)));
-};
+/* DEFECTS */
+fetch(defectURL).then(r=>r.text()).then(t=>{
+  defectData = parseCSV(t).map(r=>({
+    model:r[0], part:r[1], issue:r[2]
+  }));
+});
 
-subCategory.onchange = () => {
-  searchItem.disabled = !subCategory.value;
-};
+/* DEFECT SEARCH */
+function searchDefects() {
+  const q = modelSearch.value.trim().toLowerCase();
+  const match = defectData.find(d => d.model?.toLowerCase() === q);
 
-searchItem.oninput = () => {
-  const q = searchItem.value.toLowerCase();
-  const m = data.find(d =>
-    d.main===mainCategory.value &&
-    d.sub===subCategory.value &&
-    d.item.toLowerCase().includes(q)
-  );
-
-  if (m) {
-    result.textContent = `${m.item} — ${m.coverage}`;
-    result.className = m.coverage.toLowerCase().includes("not")
-      ? "result not-covered"
-      : "result covered";
+  if (match) {
+    defectResult.innerHTML =
+      `<strong>Part:</strong> ${match.part}<br>
+       <strong>Issue:</strong> ${match.issue}`;
   } else {
-    result.textContent = "Item not found";
-    result.className = "result not-covered";
+    defectResult.textContent =
+      "The model is not listed under any known recalls/defects";
   }
-};
+}
 </script>
 
 </body>
