@@ -2,45 +2,87 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>All Internal Tools</title>
+<title>Internal Tools</title>
 
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 
 <style>
 body {
+  margin: 0;
   font-family: Arial, sans-serif;
-  padding: 20px;
-  max-width: 900px;
-  margin: auto;
+  background: #a9c2e3;
 }
 
-nav {
-  margin-bottom: 25px;
+#app {
+  min-height: 100vh;
+  padding-left: 2in;
+  padding-top: 1in;
 }
 
-nav button {
-  padding: 10px 15px;
-  margin-right: 10px;
-  cursor: pointer;
-}
-
-section {
+.panel {
   display: none;
+  background: #a9c2e3;
+  width: 520px;
+  min-height: 360px;
+  padding: 40px;
+  box-sizing: border-box;
+  position: relative;
 }
 
-section.active {
+.panel.active {
   display: block;
 }
 
+h2 {
+  margin-top: 0;
+  font-weight: normal;
+}
+
+.subtext {
+  font-size: 12px;
+  margin-bottom: 30px;
+}
+
+.helper {
+  font-size: 11px;
+  margin: 6px 0 10px 0;
+}
+
+.menu div {
+  margin: 14px 0;
+  width: fit-content;
+  cursor: pointer;
+  border-bottom: 2px solid #555;
+  padding-bottom: 4px;
+}
+
+.menu div:hover {
+  opacity: 0.7;
+}
+
+.footer {
+  position: absolute;
+  bottom: 20px;
+  right: 40px;
+  font-size: 11px;
+}
+
+.back {
+  background: none;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
 input, textarea, select, button {
-  padding: 8px;
-  font-size: 16px;
+  font-size: 14px;
+  padding: 6px;
   margin: 6px 0;
 }
 
 .result {
   margin-top: 15px;
-  font-size: 18px;
   font-weight: bold;
 }
 
@@ -51,35 +93,49 @@ input, textarea, select, button {
 
 <body>
 
-<h1>Internal Tools</h1>
+<div id="app">
 
-<nav>
-  <button onclick="show('coi')">COI Editor</button>
-  <button onclick="show('calc')">Reverse Calculator</button>
-  <button onclick="show('coverage')">Coverage Search</button>
-</nav>
+<!-- ================= HOME ================= -->
+<section id="home" class="panel active">
+  <h2>Click and go..</h2>
+  <p class="subtext">
+    Remember to follow the instructions and always ask if you have questions
+  </p>
 
-<!-- ===================== COI EDITOR ===================== -->
-<section id="coi" class="active">
+  <div class="menu">
+    <div onclick="navigate('coi')">COI Editor</div>
+    <div onclick="navigate('calc')">Reverse Calculator</div>
+    <div onclick="navigate('coverage')">Coverage Search</div>
+  </div>
+
+  <p class="footer">Let Chuck know if you need more shortcuts</p>
+</section>
+
+<!-- ================= COI EDITOR ================= -->
+<section id="coi" class="panel">
+<button class="back" onclick="navigate('home')">← Back</button>
+
 <h2>COI Editor</h2>
 
-<label>Date (MM/DD/YYYY)</label><br>
-<input type="text" id="date" placeholder="MM/DD/YYYY"><br>
+<p class="helper">This is for customers requesting a copy of our COI</p>
 
-<label>Additional Insured</label><br>
-<textarea id="description" rows="5"></textarea><br>
+<label>Appointment Date (MM/DD/YYYY)</label><br>
+<input type="text" id="date"><br>
+
+<label>Additional Insured</label>
+<p class="helper">We only allow up to 3 additional insured</p>
+<textarea id="description" rows="4"></textarea><br>
 
 <label>Certificate Holder</label><br>
-<textarea id="holder" rows="3"></textarea><br>
-
-<label>Choose PDF (optional)</label><br>
-<input type="file" id="pdfFile"><br><br>
+<textarea id="holder" rows="3"></textarea><br><br>
 
 <button id="download">Download Edited PDF</button>
 </section>
 
-<!-- ===================== CALCULATOR ===================== -->
-<section id="calc">
+<!-- ================= CALCULATOR ================= -->
+<section id="calc" class="panel">
+<button class="back" onclick="navigate('home')">← Back</button>
+
 <h2>Reverse Markup Calculator</h2>
 
 <input type="number" id="numberInput" placeholder="Type a number" step="any">
@@ -88,8 +144,10 @@ input, textarea, select, button {
 <div id="calcResult" class="result"></div>
 </section>
 
-<!-- ===================== COVERAGE ===================== -->
-<section id="coverage">
+<!-- ================= COVERAGE ================= -->
+<section id="coverage" class="panel">
+<button class="back" onclick="navigate('home')">← Back</button>
+
 <h2>Item Coverage Search</h2>
 
 <select id="mainCategory">
@@ -105,29 +163,24 @@ input, textarea, select, button {
 <div id="result" class="result"></div>
 </section>
 
-<!-- ===================== NAV ===================== -->
+</div>
+
+<!-- ================= NAV ================= -->
 <script>
-function show(id) {
-  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+function navigate(id) {
+  document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 </script>
 
-<!-- ===================== COI SCRIPT ===================== -->
+<!-- ================= COI SCRIPT ================= -->
 <script>
 document.getElementById('download').addEventListener('click', async () => {
   try {
-    let bytes;
-    const file = pdfFile.files[0];
-
-    if (file) {
-      bytes = await file.arrayBuffer();
-    } else {
-      const res = await fetch(
-        'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
-      );
-      bytes = await res.arrayBuffer();
-    }
+    const res = await fetch(
+      'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
+    );
+    const bytes = await res.arrayBuffer();
 
     const pdf = await PDFLib.PDFDocument.load(bytes);
     const page = pdf.getPages()[0];
@@ -161,7 +214,7 @@ document.getElementById('download').addEventListener('click', async () => {
 });
 </script>
 
-<!-- ===================== CALCULATOR SCRIPT ===================== -->
+<!-- ================= CALCULATOR SCRIPT ================= -->
 <script>
 function calculateOriginal() {
   const x = parseFloat(numberInput.value);
@@ -173,15 +226,14 @@ function calculateOriginal() {
   }
 
   if (x === 20) {
-    r.textContent = "Associated value: 10.00 (100% markup)";
+    r.textContent = "Original Part Cost: 10.00";
     return;
   }
 
-  let original, markup;
+  let original;
 
   if (x >= 300) {
     original = x / 1.10;
-    markup = 10;
   } else {
     const buckets = [
       { min:1,max:10,d:2 },
@@ -197,17 +249,16 @@ function calculateOriginal() {
       const c = x / b.d;
       if (c >= b.min && c <= b.max) {
         original = c;
-        markup = ((b.d - 1) * 100).toFixed(0);
         break;
       }
     }
   }
 
-  r.textContent = `Associated value: ${original.toFixed(2)} (${markup}% markup)`;
+  r.textContent = `Original Part Cost: ${original.toFixed(2)}`;
 }
 </script>
 
-<!-- ===================== COVERAGE SCRIPT ===================== -->
+<!-- ================= COVERAGE SCRIPT ================= -->
 <script>
 const sheetURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
@@ -275,4 +326,3 @@ searchItem.oninput = () => {
 
 </body>
 </html>
- 
