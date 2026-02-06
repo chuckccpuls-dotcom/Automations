@@ -223,20 +223,23 @@ document.getElementById("download").onclick = async () => {
 <script>
 function calculateOriginal() {
   const finalPrice = parseFloat(numberInput.value);
+
   if (isNaN(finalPrice) || finalPrice <= 0) {
     calcResult.textContent = "Please enter a valid number.";
     return;
   }
 
+  // Buckets ordered from LOWEST markup to HIGHEST
+  // so overlaps prefer LOWER markup (your rule)
   const buckets = [
-    { min: 1,   max: 10,  m: 2.0 },
-    { min: 11,  max: 20,  m: 1.8 },
-    { min: 21,  max: 30,  m: 1.65 },
-    { min: 31,  max: 60,  m: 1.45 },
-    { min: 61,  max: 99,  m: 1.4 },
-    { min: 100, max: 159, m: 1.3 },
-    { min: 160, max: 299, m: 1.15 },
-    { min: 300, max: Infinity, m: 1.10 }
+    { min: 300, max: Infinity, m: 1.10 },
+    { min: 160, max: 299,      m: 1.15 },
+    { min: 100, max: 159,      m: 1.30 },
+    { min: 61,  max: 99,       m: 1.40 },
+    { min: 31,  max: 60,       m: 1.45 },
+    { min: 21,  max: 30,       m: 1.65 },
+    { min: 11,  max: 20,       m: 1.80 },
+    { min: 1,   max: 10,       m: 2.00 }
   ];
 
   let original;
@@ -259,6 +262,7 @@ function calculateOriginal() {
   calcResult.textContent =
     `Original Part Cost: ${original.toFixed(2)}`;
 }
+
 </script>
 
 <!-- ================= COVERAGE DATA ================= -->
@@ -359,5 +363,6 @@ function searchDefects() {
 
 </body>
 </html>
+
 
 
