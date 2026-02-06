@@ -9,230 +9,225 @@
 <style>
 body {
   margin: 0;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
-  background: #eef2f6;
-  color: #1f2933;
-}
-
-/* ===== HEADER ===== */
-.header {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 48px;
-  background: #ffffff;
-  border-bottom: 1px solid #e2e8f0;
-  display: flex;
-  align-items: center;
-  padding: 0 24px;
-  font-size: 14px;
-  font-weight: 600;
-  z-index: 10;
-}
-
-.header span {
-  margin-left: 8px;
-  font-weight: 400;
-  color: #6b7280;
+  font-family: Arial, sans-serif;
+  background: #a9c2e3;
 }
 
 #app {
+  min-height: 100vh;
   padding-left: 2in;
-  padding-top: calc(1in + 48px);
+  padding-top: 1in;
 }
 
-/* ===== PANEL ===== */
 .panel {
   display: none;
-  background: #ffffff;
-  width: 620px;
+  background: #a9c2e3;
+  width: 600px;
   min-height: 360px;
-  padding: 32px 36px;
-  border-radius: 8px;
-  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
-  
+  padding: 40px;
+  box-sizing: border-box;
   position: relative;
-  z-index: 1;
-  
 }
 
-.panel.active { display: block; }
+.panel.active {
+  display: block;
+}
 
-/* ===== TEXT ===== */
-h2 { margin: 0 0 6px; font-size: 18px; font-weight: 600; }
-.subtext { font-size: 12px; color: #5b6777; margin-bottom: 24px; }
-.helper { font-size: 11px; color: #6b7280; margin-bottom: 10px; }
+h2 {
+  margin-top: 0;
+  font-weight: normal;
+}
 
-/* ===== MENU ===== */
+.subtext {
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.helper {
+  font-size: 11px;
+  margin: 6px 0 10px 0;
+}
+
 .menu div {
   margin: 14px 0;
-  cursor: pointer;
-  font-weight: 500;
-  border-bottom: 2px solid transparent;
   width: fit-content;
-}
-.menu div:hover { border-bottom-color: #2563eb; }
-
-/* ===== FORM ===== */
-input, textarea, select {
-  width: 100%;
-  padding: 8px 10px;
-  margin-bottom: 14px;
-  border: 1px solid #cbd5e1;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-input:disabled, select:disabled {
-  background: #f1f5f9;
-  color: #6b7280;
-}
-
-button {
-  padding: 8px 14px;
-  border-radius: 4px;
-  border: none;
-  background: #2563eb;
-  color: white;
   cursor: pointer;
+  border-bottom: 2px solid #555;
+  padding-bottom: 4px;
 }
 
-button:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
+.menu div:hover {
+  opacity: 0.7;
+}
+
+.footer {
+  position: absolute;
+  bottom: 20px;
+  right: 40px;
+  font-size: 11px;
 }
 
 .back {
   background: none;
-  color: #2563eb;
-  padding: 0;
+  border: none;
+  font-size: 14px;
+  cursor: pointer;
   margin-bottom: 20px;
 }
 
-/* ===== RESULT ===== */
-.result { margin-top: 16px; font-size: 14px; }
-.covered { color: #15803d; font-weight: 600; }
-.not-covered { color: #b91c1c; font-weight: 600; }
-.loading { font-size: 13px; color: #6b7280; margin-top: 10px; }
+input, textarea, select, button {
+  font-size: 14px;
+  padding: 6px;
+  margin: 6px 0;
+  width: 100%;
+}
+
+.result {
+  margin-top: 15px;
+  font-weight: bold;
+}
+
+.covered { color: green; }
+.not-covered { color: red; }
 </style>
 </head>
 
 <body>
-
-<div class="header">
-  Internal Tools <span>Internal Use Only</span>
-</div>
-
 <div id="app">
 
+<!-- ================= HOME ================= -->
 <section id="home" class="panel active">
-  <h2>Tool Menu</h2>
-  <p class="subtext">Select a utility</p>
+  <h2>Click and go..</h2>
+  <p class="subtext">
+    Remember to follow the instructions and always ask if you have questions
+  </p>
+
   <div class="menu">
     <div onclick="navigate('coi')">COI</div>
     <div onclick="navigate('calc')">Calculator</div>
     <div onclick="navigate('coverage')">Coverage</div>
     <div onclick="navigate('defects')">Manufacturer Defects</div>
   </div>
+
+  <p class="footer">Let Chuck know if you need more shortcuts</p>
 </section>
 
+<!-- ================= COI ================= -->
 <section id="coi" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-<h2>COI Editor</h2>
 
-<label>Date</label>
-<input id="date">
+<h2>COI Editor</h2>
+<p class="helper">This is for customers requesting a copy of our COI</p>
+
+<label>Appointment Date (MM/DD/YYYY)</label>
+<input type="text" id="date">
 
 <label>Additional Insured</label>
+<p class="helper">We only allow up to 3 additional insured</p>
 <textarea id="description" rows="4"></textarea>
 
 <label>Certificate Holder</label>
-<textarea id="holder" rows="3"></textarea>
+<textarea id="holder" rows="3"></textarea><br>
 
-<button id="download" type="button">Download PDF</button>
+<button id="download">Download Edited PDF</button>
 </section>
 
+<!-- ================= CALCULATOR ================= -->
 <section id="calc" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
+
 <h2>Reverse Markup Calculator</h2>
 
-<input id="numberInput" type="number" placeholder="Enter amount">
+<input type="number" id="numberInput" placeholder="Type a number" step="any">
 <button onclick="calculateOriginal()">Submit</button>
+
 <div id="calcResult" class="result"></div>
 </section>
 
+<!-- ================= COVERAGE ================= -->
 <section id="coverage" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
+
 <h2>Item Coverage Search</h2>
 
-<div id="coverageLoading" class="loading">Loading coverage data…</div>
+<select id="mainCategory">
+  <option value="">Select Main Category</option>
+</select>
 
-<select id="mainCategory"></select>
-<select id="subCategory" disabled></select>
-<input id="searchItem" placeholder="Search item…" disabled>
+<select id="subCategory" disabled>
+  <option value="">Select Sub Category</option>
+</select>
+
+<input id="searchItem" placeholder="Type item name..." disabled>
 
 <div id="result" class="result"></div>
 </section>
 
+<!-- ================= MANUFACTURER DEFECTS ================= -->
 <section id="defects" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-<h2>Manufacturer Defects</h2>
 
-<input id="modelSearch" placeholder="Model number">
+<h2>Manufacturer Defects</h2>
+<p class="helper">Please type the model number of the appliance to check</p>
+
+<input id="modelSearch" placeholder="Enter model number">
 <button onclick="searchDefects()">Search</button>
 
-<div id="defectLoading" class="loading"></div>
 <div id="defectResult" class="result"></div>
 </section>
 
 </div>
 
+<!-- ================= NAV ================= -->
 <script>
 function navigate(id) {
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
-
-/* ===== CSV PARSER (commas safe) ===== */
-function parseCSV(text) {
-  const rows = [];
-  let row = [];
-  let cell = "";
-  let inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    const n = text[i + 1];
-
-    if (c === '"' && inQuotes && n === '"') {
-      cell += '"'; i++;
-    } else if (c === '"') {
-      inQuotes = !inQuotes;
-    } else if (c === "," && !inQuotes) {
-      row.push(cell); cell = "";
-    } else if (c === "\n" && !inQuotes) {
-      row.push(cell); rows.push(row);
-      row = []; cell = "";
-    } else {
-      cell += c;
-    }
-  }
-  row.push(cell);
-  rows.push(row);
-  return rows.slice(1);
-}
 </script>
 
+<!-- ================= COI SCRIPT ================= -->
 <script>
-/* ===== CALCULATOR ===== */
-const numberInput = document.getElementById("numberInput");
-const calcResult = document.getElementById("calcResult");
+document.getElementById('download').addEventListener('click', async () => {
+  const res = await fetch(
+    'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
+  );
+  const bytes = await res.arrayBuffer();
 
+  const pdf = await PDFLib.PDFDocument.load(bytes);
+  const page = pdf.getPages()[0];
+  const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
+
+  const size = 8, line = 10;
+
+  page.drawText(date.value, { x: 530, y: 740, font, size });
+
+  let y = 182;
+  description.value.split("\n").forEach(l => {
+    page.drawText(l, { x: 50, y, font, size });
+    y -= line;
+  });
+
+  y = 84;
+  holder.value.split("\n").forEach(l => {
+    page.drawText(l, { x: 50, y, font, size });
+    y -= line;
+  });
+
+  const out = await pdf.save();
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
+  a.download = "COI Copy.pdf";
+  a.click();
+});
+</script>
+
+<!-- ================= CALCULATOR ================= -->
+<script>
 function calculateOriginal() {
   const x = parseFloat(numberInput.value);
-  if (isNaN(x) || x <= 0) {
-    calcResult.textContent = "Enter a valid number.";
+  if (isNaN(x)) {
+    calcResult.textContent = "Please enter a valid number.";
     return;
   }
 
@@ -240,205 +235,67 @@ function calculateOriginal() {
   if (x === 20) original = 10;
   else if (x >= 300) original = x / 1.1;
   else {
-    const buckets = [[1,10,2],[11,20,1.8],[21,30,1.65],[31,60,1.45],[61,99,1.4],[100,159,1.3],[160,299,1.15]];
-    for (const [min,max,m] of buckets) {
-      const c = x / m;
-      if (c >= min && c <= max) { original = c; break; }
+    const buckets = [
+      [1,10,2],[11,20,1.8],[21,30,1.65],
+      [31,60,1.45],[61,99,1.4],
+      [100,159,1.3],[160,299,1.15]
+    ];
+    for (const b of buckets) {
+      const c = x / b[2];
+      if (c >= b[0] && c <= b[1]) original = c;
     }
   }
-
-  calcResult.textContent = original
-    ? `Original Part Cost: ${original.toFixed(2)}`
-    : "No pricing rule matched.";
+  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
 }
 </script>
 
+<!-- ================= COVERAGE + DEFECT DATA ================= -->
 <script>
-window.addEventListener("DOMContentLoaded", () => {
-  const dateInput = document.getElementById("date");
-  const descriptionInput = document.getElementById("description");
-  const holderInput = document.getElementById("holder");
-  const downloadBtn = document.getElementById("download");
-
-  if (!downloadBtn) {
-    alert("COI Download button not found");
-    return;
-  }
-
-  downloadBtn.addEventListener("click", async () => {
-    try {
-      downloadBtn.disabled = true;
-      downloadBtn.textContent = "Generating…";
-
-      console.log("Fetching COI template…");
-
-      const response = await fetch(
-        "https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf"
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch COI PDF");
-      }
-
-      const pdfBytes = await response.arrayBuffer();
-
-      console.log("Loading PDF…");
-
-      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
-      const page = pdfDoc.getPages()[0];
-      const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
-
-      const fontSize = 8;
-      const lineHeight = 10;
-
-      // Date
-      page.drawText(dateInput.value || "", {
-        x: 530,
-        y: 740,
-        size: fontSize,
-        font
-      });
-
-      // Additional Insured
-      let y = 182;
-      descriptionInput.value.split("\n").forEach(text => {
-        if (text.trim()) {
-          page.drawText(text, { x: 50, y, size: fontSize, font });
-          y -= lineHeight;
-        }
-      });
-
-      // Certificate Holder
-      y = 84;
-      holderInput.value.split("\n").forEach(text => {
-        if (text.trim()) {
-          page.drawText(text, { x: 50, y, size: fontSize, font });
-          y -= lineHeight;
-        }
-      });
-
-      const outputPdf = await pdfDoc.save();
-
-      console.log("Triggering download…");
-
-      const blob = new Blob([outputPdf], { type: "application/pdf" });
-      const url = URL.createObjectURL(blob);
-
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "COI Copy.pdf";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      URL.revokeObjectURL(url);
-
-    } catch (err) {
-      console.error(err);
-      alert("COI generation failed. Check console for details.");
-    } finally {
-      downloadBtn.disabled = false;
-      downloadBtn.textContent = "Download PDF";
-    }
-  });
-});
-</script>
-
-<script>
-/* ===== COVERAGE ===== */
 const coverageURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
 
-const mainCategory = document.getElementById("mainCategory");
-const subCategory = document.getElementById("subCategory");
-const searchItem = document.getElementById("searchItem");
-const result = document.getElementById("result");
-const coverageLoading = document.getElementById("coverageLoading");
+const defectURL =
+"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
 
 let coverageData = [];
+let defectData = [];
 
+function parseCSV(text) {
+  return text.split("\n").slice(1).map(r => r.split(","));
+}
+
+/* COVERAGE */
 fetch(coverageURL).then(r=>r.text()).then(t=>{
   coverageData = parseCSV(t).map(r=>({
-    main:r[0], sub:r[1], brand:r[2], item:r[3], coverage:r[4], issue:r[5]
+    main:r[0], sub:r[1], item:r[2], coverage:r[3]
   }));
-
-  coverageLoading.style.display = "none";
-
-  mainCategory.innerHTML = `<option value="">Select Main Category</option>`;
   [...new Set(coverageData.map(d=>d.main))].forEach(m=>{
     mainCategory.add(new Option(m,m));
   });
 });
 
-mainCategory.onchange = () => {
-  subCategory.disabled = false;
-  searchItem.disabled = true;
-  result.textContent = "";
-
-  subCategory.innerHTML = `<option value="">Select Sub Category</option>`;
-  [...new Set(coverageData.filter(d=>d.main===mainCategory.value).map(d=>d.sub))]
-    .forEach(s=>subCategory.add(new Option(s,s)));
-};
-
-subCategory.onchange = () => {
-  searchItem.disabled = false;
-  result.textContent = "";
-};
-
-searchItem.oninput = () => {
-  const q = searchItem.value.toLowerCase();
-  if (!q) { result.textContent = ""; return; }
-
-  const match = coverageData.find(d =>
-    d.main===mainCategory.value &&
-    d.sub===subCategory.value &&
-    d.item.toLowerCase().includes(q)
-  );
-
-  result.innerHTML = match
-    ? `<div class="covered">Covered</div>
-       <div><strong>Brand:</strong> ${match.brand}</div>
-       <div><strong>Item:</strong> ${match.item}</div>
-       <div><strong>Notes:</strong> ${match.issue || "N/A"}</div>`
-    : `<div class="not-covered">Not Covered</div>`;
-};
-</script>
-
-<script>
-/* ===== DEFECTS ===== */
-const defectURL =
-"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
-
-const modelSearch = document.getElementById("modelSearch");
-const defectResult = document.getElementById("defectResult");
-const defectLoading = document.getElementById("defectLoading");
-
-let defectData = [];
-
+/* DEFECTS */
 fetch(defectURL).then(r=>r.text()).then(t=>{
   defectData = parseCSV(t).map(r=>({
     model:r[0], part:r[1], issue:r[2]
   }));
 });
 
+/* DEFECT SEARCH */
 function searchDefects() {
-  defectLoading.textContent = "Searching…";
-  defectResult.textContent = "";
+  const q = modelSearch.value.trim().toLowerCase();
+  const match = defectData.find(d => d.model?.toLowerCase() === q);
 
-  setTimeout(()=>{
-    const q = modelSearch.value.trim().toLowerCase();
-    const match = defectData.find(d=>d.model?.toLowerCase()===q);
-
-    defectLoading.textContent = "";
-    defectResult.innerHTML = match
-      ? `<strong>Part:</strong> ${match.part}<br><strong>Issue:</strong> ${match.issue}`
-      : "No known defects or recalls found.";
-  },300);
+  if (match) {
+    defectResult.innerHTML =
+      `<strong>Part:</strong> ${match.part}<br>
+       <strong>Issue:</strong> ${match.issue}`;
+  } else {
+    defectResult.textContent =
+      "The model is not listed under any known recalls/defects";
+  }
 }
 </script>
 
 </body>
 </html>
-
-
-
