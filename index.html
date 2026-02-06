@@ -7,100 +7,172 @@
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 
 <style>
+/* ================= BASE ================= */
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #a9c2e3;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  background: #eef2f6;
+  color: #1f2933;
 }
 
+/* ================= HEADER ================= */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 10;
+}
+
+.header span {
+  font-weight: 400;
+  color: #6b7280;
+  margin-left: 8px;
+}
+
+/* ================= APP ================= */
 #app {
   min-height: 100vh;
   padding-left: 2in;
-  padding-top: 1in;
+  padding-top: calc(1in + 48px);
 }
 
+/* ================= PANEL ================= */
 .panel {
   display: none;
-  background: #a9c2e3;
+  background: #ffffff;
   width: 600px;
   min-height: 360px;
-  padding: 40px;
+  padding: 32px 36px;
   box-sizing: border-box;
   position: relative;
+  border-radius: 8px;
+  box-shadow: 0 10px 28px rgba(0,0,0,0.08);
 }
 
 .panel.active {
   display: block;
 }
 
+/* ================= TYPOGRAPHY ================= */
 h2 {
-  margin-top: 0;
-  font-weight: normal;
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 600;
 }
 
 .subtext {
   font-size: 12px;
-  margin-bottom: 20px;
+  color: #5b6777;
+  margin-bottom: 24px;
 }
 
 .helper {
   font-size: 11px;
+  color: #6b7280;
   margin: 6px 0 10px 0;
 }
 
+/* ================= MENU ================= */
 .menu div {
   margin: 14px 0;
   width: fit-content;
   cursor: pointer;
-  border-bottom: 2px solid #555;
-  padding-bottom: 4px;
+  padding: 6px 0;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1e293b;
+  border-bottom: 2px solid transparent;
 }
 
 .menu div:hover {
-  opacity: 0.7;
+  border-bottom-color: #2563eb;
 }
 
-.footer {
-  position: absolute;
-  bottom: 20px;
-  right: 40px;
-  font-size: 11px;
+/* ================= FORM ================= */
+input,
+textarea,
+select {
+  font-size: 14px;
+  padding: 8px 10px;
+  margin: 6px 0 14px 0;
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  background: #f1f5f9;
+  color: #6b7280;
+}
+
+/* ================= BUTTONS ================= */
+button {
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+}
+
+button:not(.back) {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+button:disabled {
+  background: #cbd5e1;
+  color: #6b7280;
+  cursor: not-allowed;
 }
 
 .back {
   background: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
+  color: #2563eb;
+  padding: 0;
   margin-bottom: 20px;
 }
 
-input, textarea, select, button {
-  font-size: 14px;
-  padding: 6px;
-  margin: 6px 0;
-  width: 100%;
-}
-
+/* ================= RESULTS ================= */
 .result {
-  margin-top: 15px;
-  font-weight: bold;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.covered { color: green; }
-.not-covered { color: red; }
+.covered { color: #15803d; }
+.not-covered { color: #b91c1c; }
+
+.loading {
+  font-size: 13px;
+  color: #6b7280;
+  margin-top: 10px;
+}
 </style>
 </head>
 
 <body>
+
+<div class="header">
+  Internal Tools <span>Internal Use Only</span>
+</div>
+
 <div id="app">
 
 <!-- ================= HOME ================= -->
 <section id="home" class="panel active">
-  <h2>Click and go..</h2>
-  <p class="subtext">
-    Remember to follow the instructions and always ask if you have questions
-  </p>
+  <h2>Tool Menu</h2>
+  <p class="subtext">Select a utility below</p>
 
   <div class="menu">
     <div onclick="navigate('coi')">COI</div>
@@ -108,77 +180,109 @@ input, textarea, select, button {
     <div onclick="navigate('coverage')">Coverage</div>
     <div onclick="navigate('defects')">Manufacturer Defects</div>
   </div>
-
-  <p class="footer">Let Chuck know if you need more shortcuts</p>
 </section>
 
 <!-- ================= COI ================= -->
 <section id="coi" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-
 <h2>COI Editor</h2>
-<p class="helper">This is for customers requesting a copy of our COI</p>
 
-<label>Appointment Date (MM/DD/YYYY)</label>
-<input type="text" id="date">
+<label>Date</label>
+<input id="date">
 
 <label>Additional Insured</label>
-<p class="helper">We only allow up to 3 additional insured</p>
-<textarea id="description" rows="4"></textarea>
+<textarea id="description"></textarea>
 
 <label>Certificate Holder</label>
-<textarea id="holder" rows="3"></textarea><br>
+<textarea id="holder"></textarea>
 
-<button id="download">Download Edited PDF</button>
+<button id="download">Download PDF</button>
 </section>
 
-<!-- ================= CALCULATOR ================= -->
+<!-- ================= CALC ================= -->
 <section id="calc" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-
 <h2>Reverse Markup Calculator</h2>
 
-<input type="number" id="numberInput" placeholder="Type a number" step="any">
+<input id="numberInput" type="number">
 <button onclick="calculateOriginal()">Submit</button>
-
 <div id="calcResult" class="result"></div>
 </section>
+
+<script>
+const numberInput = document.getElementById("numberInput");
+const calcResult = document.getElementById("calcResult");
+
+function calculateOriginal() {
+  const x = parseFloat(numberInput.value);
+
+  if (isNaN(x) || x <= 0) {
+    calcResult.textContent = "Please enter a valid number.";
+    return;
+  }
+
+  let original;
+
+  if (x === 20) {
+    original = 10;
+  } else if (x >= 300) {
+    original = x / 1.1;
+  } else {
+    const buckets = [
+      [1,10,2],
+      [11,20,1.8],
+      [21,30,1.65],
+      [31,60,1.45],
+      [61,99,1.4],
+      [100,159,1.3],
+      [160,299,1.15]
+    ];
+
+    for (const [min, max, mult] of buckets) {
+      const c = x / mult;
+      if (c >= min && c <= max) {
+        original = c;
+        break;
+      }
+    }
+  }
+
+  if (!original) {
+    calcResult.textContent = "No pricing rule matched.";
+    return;
+  }
+
+  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
+}
+</script>
 
 <!-- ================= COVERAGE ================= -->
 <section id="coverage" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-
 <h2>Item Coverage Search</h2>
 
-<select id="mainCategory">
-  <option value="">Select Main Category</option>
-</select>
+<div id="coverageLoading" class="loading">Loading coverage data…</div>
 
-<select id="subCategory" disabled>
-  <option value="">Select Sub Category</option>
-</select>
-
-<input id="searchItem" placeholder="Type item name..." disabled>
+<select id="mainCategory"></select>
+<select id="subCategory" disabled></select>
+<input id="searchItem" placeholder="Search item…" disabled>
 
 <div id="result" class="result"></div>
 </section>
 
-<!-- ================= MANUFACTURER DEFECTS ================= -->
+<!-- ================= DEFECTS ================= -->
 <section id="defects" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
-
 <h2>Manufacturer Defects</h2>
-<p class="helper">Please type the model number of the appliance to check</p>
 
-<input id="modelSearch" placeholder="Enter model number">
+<input id="modelSearch">
 <button onclick="searchDefects()">Search</button>
-
+<div id="defectLoading" class="loading"></div>
 <div id="defectResult" class="result"></div>
 </section>
 
 </div>
 
-<!-- ================= NAV ================= -->
 <script>
 function navigate(id) {
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
@@ -186,114 +290,109 @@ function navigate(id) {
 }
 </script>
 
-<!-- ================= COI SCRIPT ================= -->
-<script>
-document.getElementById('download').addEventListener('click', async () => {
-  const res = await fetch(
-    'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
-  );
-  const bytes = await res.arrayBuffer();
-
-  const pdf = await PDFLib.PDFDocument.load(bytes);
-  const page = pdf.getPages()[0];
-  const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
-
-  const size = 8, line = 10;
-
-  page.drawText(date.value, { x: 530, y: 740, font, size });
-
-  let y = 182;
-  description.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size });
-    y -= line;
-  });
-
-  y = 84;
-  holder.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size });
-    y -= line;
-  });
-
-  const out = await pdf.save();
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
-  a.download = "COI Copy.pdf";
-  a.click();
-});
-</script>
-
-<!-- ================= CALCULATOR ================= -->
-<script>
-function calculateOriginal() {
-  const x = parseFloat(numberInput.value);
-  if (isNaN(x)) {
-    calcResult.textContent = "Please enter a valid number.";
-    return;
-  }
-
-  let original;
-  if (x === 20) original = 10;
-  else if (x >= 300) original = x / 1.1;
-  else {
-    const buckets = [
-      [1,10,2],[11,20,1.8],[21,30,1.65],
-      [31,60,1.45],[61,99,1.4],
-      [100,159,1.3],[160,299,1.15]
-    ];
-    for (const b of buckets) {
-      const c = x / b[2];
-      if (c >= b[0] && c <= b[1]) original = c;
-    }
-  }
-  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
-}
-</script>
-
-<!-- ================= COVERAGE + DEFECT DATA ================= -->
 <script>
 const coverageURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
 
-const defectURL =
-"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
-
 let coverageData = [];
-let defectData = [];
+
+const mainCategory = document.getElementById("mainCategory");
+const subCategory = document.getElementById("subCategory");
+const searchItem = document.getElementById("searchItem");
+const result = document.getElementById("result");
+const coverageLoading = document.getElementById("coverageLoading");
 
 function parseCSV(text) {
   return text.split("\n").slice(1).map(r => r.split(","));
 }
 
-/* COVERAGE */
-fetch(coverageURL).then(r=>r.text()).then(t=>{
-  coverageData = parseCSV(t).map(r=>({
-    main:r[0], sub:r[1], item:r[2], coverage:r[3]
-  }));
-  [...new Set(coverageData.map(d=>d.main))].forEach(m=>{
-    mainCategory.add(new Option(m,m));
-  });
-});
+fetch(coverageURL)
+  .then(r => r.text())
+  .then(t => {
+    coverageData = parseCSV(t).map(r => ({
+      main: r[0],
+      sub: r[1],
+      item: r[2],
+      coverage: r[3]
+    }));
 
-/* DEFECTS */
+    coverageLoading.style.display = "none";
+
+    const mains = [...new Set(coverageData.map(d => d.main))];
+    mainCategory.innerHTML = `<option value="">Select Main Category</option>`;
+    mains.forEach(m => mainCategory.add(new Option(m, m)));
+  });
+
+mainCategory.onchange = () => {
+  subCategory.disabled = false;
+  searchItem.disabled = true;
+  result.textContent = "";
+
+  const subs = [...new Set(
+    coverageData.filter(d => d.main === mainCategory.value).map(d => d.sub)
+  )];
+
+  subCategory.innerHTML = `<option value="">Select Sub Category</option>`;
+  subs.forEach(s => subCategory.add(new Option(s, s)));
+};
+
+subCategory.onchange = () => {
+  searchItem.disabled = false;
+  result.textContent = "";
+};
+
+searchItem.oninput = () => {
+  const q = searchItem.value.toLowerCase();
+  const match = coverageData.find(d =>
+    d.main === mainCategory.value &&
+    d.sub === subCategory.value &&
+    d.item.toLowerCase().includes(q)
+  );
+
+  if (!q) {
+    result.textContent = "";
+  } else if (match) {
+    result.innerHTML = `<span class="covered">Covered</span>: ${match.item}`;
+  } else {
+    result.innerHTML = `<span class="not-covered">Not Covered</span>`;
+  }
+};
+</script>
+
+<script>
+const modelSearch = document.getElementById("modelSearch");
+const defectResult = document.getElementById("defectResult");
+const defectLoading = document.getElementById("defectLoading");
+
+const defectURL =
+"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
+
+let defectData = [];
+
 fetch(defectURL).then(r=>r.text()).then(t=>{
   defectData = parseCSV(t).map(r=>({
     model:r[0], part:r[1], issue:r[2]
   }));
 });
 
-/* DEFECT SEARCH */
 function searchDefects() {
-  const q = modelSearch.value.trim().toLowerCase();
-  const match = defectData.find(d => d.model?.toLowerCase() === q);
+  defectLoading.textContent = "Searching…";
+  defectResult.textContent = "";
 
-  if (match) {
-    defectResult.innerHTML =
-      `<strong>Part:</strong> ${match.part}<br>
-       <strong>Issue:</strong> ${match.issue}`;
-  } else {
-    defectResult.textContent =
-      "The model is not listed under any known recalls/defects";
-  }
+  setTimeout(() => {
+    const q = modelSearch.value.trim().toLowerCase();
+    const match = defectData.find(d => d.model?.toLowerCase() === q);
+
+    defectLoading.textContent = "";
+
+    if (match) {
+      defectResult.innerHTML =
+        `<strong>Part:</strong> ${match.part}<br>
+         <strong>Issue:</strong> ${match.issue}`;
+    } else {
+      defectResult.textContent = "No known defects or recalls found.";
+    }
+  }, 300);
 }
 </script>
 
