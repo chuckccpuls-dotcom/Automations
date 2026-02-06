@@ -240,9 +240,24 @@ function calculateOriginal() {
   ];
 
   let original;
+
+  for (const b of buckets) {
+    const minFinal = b.min * b.m;
+    const maxFinal = b.max * b.m;
+
+    if (finalPrice >= minFinal && finalPrice <= maxFinal) {
+      original = finalPrice / b.m;
+      break;
     }
   }
-  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
+
+  if (!original) {
+    calcResult.textContent = "No pricing rule matched.";
+    return;
+  }
+
+  calcResult.textContent =
+    `Original Part Cost: ${original.toFixed(2)}`;
 }
 </script>
 
@@ -344,4 +359,5 @@ function searchDefects() {
 
 </body>
 </html>
+
 
