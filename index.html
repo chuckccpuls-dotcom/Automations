@@ -250,46 +250,93 @@ function calculateOriginal() {
 </script>
 
 <script>
-/* ===== COI ===== */
-const dateInput = document.getElementById("date");
-const descriptionInput = document.getElementById("description");
-const holderInput = document.getElementById("holder");
-const downloadBtn = document.getElementById("download");
+window.addEventListener("DOMContentLoaded", () => {
+  const dateInput = document.getElementById("date");
+  const descriptionInput = document.getElementById("description");
+  const holderInput = document.getElementById("holder");
+  const downloadBtn = document.getElementById("download");
 
-downloadBtn.addEventListener("click", async () => {
-  try {
-    downloadBtn.disabled = true;
-    downloadBtn.textContent = "Generating…";
-
-    const res = await fetch("https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf");
-    if (!res.ok) throw new Error();
-
-    const pdf = await PDFLib.PDFDocument.load(await res.arrayBuffer());
-    const page = pdf.getPages()[0];
-    const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
-
-    page.drawText(dateInput.value || "", { x: 530, y: 740, font, size: 8 });
-
-    let y = 182;
-    descriptionInput.value.split("\n").forEach(t => {
-      page.drawText(t, { x: 50, y, font, size: 8 }); y -= 10;
-    });
-
-    y = 84;
-    holderInput.value.split("\n").forEach(t => {
-      page.drawText(t, { x: 50, y, font, size: 8 }); y -= 10;
-    });
-
-    const blob = new Blob([await pdf.save()], { type: "application/pdf" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "COI Copy.pdf";
-    a.click();
-
-  } finally {
-    downloadBtn.disabled = false;
-    downloadBtn.textContent = "Download PDF";
+  if (!downloadBtn) {
+    alert("COI Download button not found");
+    return;
   }
+
+  downloadBtn.addEventListener("click", async () => {
+    try {
+      downloadBtn.disabled = true;
+      downloadBtn.textContent = "Generating…";
+
+      console.log("Fetching COI template…");
+
+      const response = await fetch(
+        "https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf"
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch COI PDF");
+      }
+
+      const pdfBytes = await response.arrayBuffer();
+
+      console.log("Loading PDF…");
+
+      const pdfDoc = await PDFLib.PDFDocument.load(pdfBytes);
+      const page = pdfDoc.getPages()[0];
+      const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+
+      const fontSize = 8;
+      const lineHeight = 10;
+
+      // Date
+      page.drawText(dateInput.value || "", {
+        x: 530,
+        y: 740,
+        size: fontSize,
+        font
+      });
+
+      // Additional Insured
+      let y = 182;
+      descriptionInput.value.split("\n").forEach(text => {
+        if (text.trim()) {
+          page.drawText(text, { x: 50, y, size: fontSize, font });
+          y -= lineHeight;
+        }
+      });
+
+      // Certificate Holder
+      y = 84;
+      holderInput.value.split("\n").forEach(text => {
+        if (text.trim()) {
+          page.drawText(text, { x: 50, y, size: fontSize, font });
+          y -= lineHeight;
+        }
+      });
+
+      const outputPdf = await pdfDoc.save();
+
+      console.log("Triggering download…");
+
+      const blob = new Blob([outputPdf], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "COI Copy.pdf";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      URL.revokeObjectURL(url);
+
+    } catch (err) {
+      console.error(err);
+      alert("COI generation failed. Check console for details.");
+    } finally {
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = "Download PDF";
+    }
+  });
 });
 </script>
 
@@ -388,3 +435,4 @@ function searchDefects() {
 
 </body>
 </html>
+
