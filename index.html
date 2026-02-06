@@ -22,7 +22,7 @@ body {
 .panel {
   display: none;
   background: #a9c2e3;
-  width: 600px;
+  width: 640px;
   min-height: 360px;
   padding: 40px;
   box-sizing: border-box;
@@ -33,32 +33,18 @@ body {
   display: block;
 }
 
-h2 {
-  margin-top: 0;
-  font-weight: normal;
-}
-
-.subtext {
-  font-size: 12px;
-  margin-bottom: 20px;
-}
-
-.helper {
-  font-size: 11px;
-  margin: 6px 0 10px 0;
-}
+h2 { margin-top: 0; font-weight: normal; }
+.subtext { font-size: 12px; margin-bottom: 20px; }
+.helper { font-size: 11px; margin-bottom: 10px; }
 
 .menu div {
   margin: 14px 0;
   width: fit-content;
   cursor: pointer;
   border-bottom: 2px solid #555;
-  padding-bottom: 4px;
 }
 
-.menu div:hover {
-  opacity: 0.7;
-}
+.menu div:hover { opacity: 0.7; }
 
 .footer {
   position: absolute;
@@ -76,17 +62,13 @@ h2 {
 }
 
 input, textarea, select, button {
-  font-size: 14px;
-  padding: 6px;
-  margin: 6px 0;
   width: 100%;
+  padding: 6px;
+  font-size: 14px;
+  margin: 6px 0;
 }
 
-.result {
-  margin-top: 15px;
-  font-weight: bold;
-}
-
+.result { margin-top: 15px; font-weight: bold; }
 .covered { color: green; }
 .not-covered { color: red; }
 </style>
@@ -109,7 +91,9 @@ input, textarea, select, button {
     <div onclick="navigate('defects')">Manufacturer Defects</div>
   </div>
 
-  <p class="footer">Let Chuck know if you need more shortcuts</p>
+  <p class="footer">
+    Please let Chuck know if you have any suggestions, or shortcut requests
+  </p>
 </section>
 
 <!-- ================= COI ================= -->
@@ -127,7 +111,7 @@ input, textarea, select, button {
 <textarea id="description" rows="4"></textarea>
 
 <label>Certificate Holder</label>
-<textarea id="holder" rows="3"></textarea><br>
+<textarea id="holder" rows="3"></textarea>
 
 <button id="download">Download Edited PDF</button>
 </section>
@@ -138,7 +122,7 @@ input, textarea, select, button {
 
 <h2>Reverse Markup Calculator</h2>
 
-<input type="number" id="numberInput" placeholder="Type a number" step="any">
+<input type="number" id="numberInput" placeholder="Enter marked-up price">
 <button onclick="calculateOriginal()">Submit</button>
 
 <div id="calcResult" class="result"></div>
@@ -148,7 +132,7 @@ input, textarea, select, button {
 <section id="coverage" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
 
-<h2>Item Coverage Search</h2>
+<h2>Coverage Search</h2>
 
 <select id="mainCategory">
   <option value="">Select Main Category</option>
@@ -160,10 +144,10 @@ input, textarea, select, button {
 
 <input id="searchItem" placeholder="Type item name..." disabled>
 
-<div id="result" class="result"></div>
+<div id="coverageResult" class="result"></div>
 </section>
 
-<!-- ================= MANUFACTURER DEFECTS ================= -->
+<!-- ================= DEFECTS ================= -->
 <section id="defects" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
 
@@ -178,19 +162,34 @@ input, textarea, select, button {
 
 </div>
 
-<!-- ================= NAV ================= -->
 <script>
 function navigate(id) {
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
+
+/* ================= CSV PARSER ================= */
+function parseCSVSafe(text) {
+  const rows = [];
+  let row = [], val = "", inQuotes = false;
+
+  for (let c of text) {
+    if (c === '"') inQuotes = !inQuotes;
+    else if (c === "," && !inQuotes) { row.push(val); val = ""; }
+    else if (c === "\n" && !inQuotes) { row.push(val); rows.push(row); row=[]; val=""; }
+    else val += c;
+  }
+  row.push(val);
+  rows.push(row);
+  return rows;
+}
 </script>
 
 <!-- ================= COI SCRIPT ================= -->
 <script>
-document.getElementById('download').addEventListener('click', async () => {
+document.getElementById("download").onclick = async () => {
   const res = await fetch(
-    'https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf'
+    "https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf"
   );
   const bytes = await res.arrayBuffer();
 
@@ -198,20 +197,18 @@ document.getElementById('download').addEventListener('click', async () => {
   const page = pdf.getPages()[0];
   const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
 
-  const size = 8, line = 10;
-
-  page.drawText(date.value, { x: 530, y: 740, font, size });
+  page.drawText(date.value, { x: 530, y: 740, font, size: 8 });
 
   let y = 182;
   description.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size });
-    y -= line;
+    page.drawText(l, { x: 50, y, font, size: 8 });
+    y -= 10;
   });
 
   y = 84;
   holder.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size });
-    y -= line;
+    page.drawText(l, { x: 50, y, font, size: 8 });
+    y -= 10;
   });
 
   const out = await pdf.save();
@@ -219,7 +216,7 @@ document.getElementById('download').addEventListener('click', async () => {
   a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
   a.download = "COI Copy.pdf";
   a.click();
-});
+};
 </script>
 
 <!-- ================= CALCULATOR ================= -->
@@ -249,51 +246,99 @@ function calculateOriginal() {
 }
 </script>
 
-<!-- ================= COVERAGE + DEFECT DATA ================= -->
+<!-- ================= COVERAGE DATA ================= -->
 <script>
 const coverageURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
 
+let coverageData = [];
+
+fetch(coverageURL)
+  .then(r => r.text())
+  .then(csv => {
+    const rows = parseCSVSafe(csv).slice(1);
+    coverageData = rows.map(r => ({
+      main: r[0]?.trim(),
+      sub: r[1]?.trim(),
+      item: r[2]?.trim(),
+      coverage: r[3]?.trim()
+    }));
+
+    [...new Set(coverageData.map(d => d.main).filter(Boolean))]
+      .forEach(m => mainCategory.add(new Option(m, m)));
+  });
+
+mainCategory.onchange = function () {
+  subCategory.innerHTML = `<option value="">Select Sub Category</option>`;
+  subCategory.disabled = !this.value;
+  searchItem.disabled = true;
+  coverageResult.textContent = "";
+
+  const subs = coverageData
+    .filter(d => d.main === this.value)
+    .map(d => d.sub);
+
+  [...new Set(subs)].forEach(s =>
+    subCategory.add(new Option(s, s))
+  );
+};
+
+subCategory.onchange = function () {
+  searchItem.disabled = !this.value;
+};
+
+searchItem.oninput = function () {
+  const q = this.value.toLowerCase();
+  const m = coverageData.find(d =>
+    d.main === mainCategory.value &&
+    d.sub === subCategory.value &&
+    d.item?.toLowerCase().includes(q)
+  );
+
+  coverageResult.textContent = m
+    ? `${m.item} — ${m.coverage}`
+    : "Item not found";
+};
+</script>
+
+<!-- ================= DEFECT DATA ================= -->
+<script>
 const defectURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
 
-let coverageData = [];
 let defectData = [];
 
-function parseCSV(text) {
-  return text.split("\n").slice(1).map(r => r.split(","));
+fetch(defectURL)
+  .then(r => r.text())
+  .then(csv => {
+    const rows = parseCSVSafe(csv).slice(1);
+    defectData = rows
+      .filter(r => r[0])
+      .map(r => ({
+        model: r[0].trim(),
+        part: r[1]?.trim(),
+        issue: r[2]?.trim()
+      }));
+  });
+
+function normalize(str) {
+  return str.toLowerCase().replace(/\s+/g,"").replace(/[^a-z0-9]/g,"");
 }
 
-/* COVERAGE */
-fetch(coverageURL).then(r=>r.text()).then(t=>{
-  coverageData = parseCSV(t).map(r=>({
-    main:r[0], sub:r[1], item:r[2], coverage:r[3]
-  }));
-  [...new Set(coverageData.map(d=>d.main))].forEach(m=>{
-    mainCategory.add(new Option(m,m));
-  });
-});
-
-/* DEFECTS */
-fetch(defectURL).then(r=>r.text()).then(t=>{
-  defectData = parseCSV(t).map(r=>({
-    model:r[0], part:r[1], issue:r[2]
-  }));
-});
-
-/* DEFECT SEARCH */
 function searchDefects() {
-  const q = modelSearch.value.trim().toLowerCase();
-  const match = defectData.find(d => d.model?.toLowerCase() === q);
-
-  if (match) {
-    defectResult.innerHTML =
-      `<strong>Part:</strong> ${match.part}<br>
-       <strong>Issue:</strong> ${match.issue}`;
-  } else {
-    defectResult.textContent =
-      "The model is not listed under any known recalls/defects";
+  const q = normalize(modelSearch.value);
+  if (!q) {
+    defectResult.textContent = "Please enter a model number.";
+    return;
   }
+
+  const m = defectData.find(d => normalize(d.model).includes(q));
+
+  defectResult.innerHTML = m
+    ? `<strong>Model:</strong> ${m.model}<br>
+       <strong>Part:</strong> ${m.part}<br>
+       <strong>Issue:</strong> ${m.issue}`
+    : "The model is not listed under any known recalls/defects";
 }
 </script>
 
