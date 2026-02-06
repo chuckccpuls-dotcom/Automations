@@ -7,25 +7,42 @@
 <script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
 
 <style>
+:root {
+  --bg: #eef3fb;
+  --panel: #ffffff;
+  --primary: #2f5fd7;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #a9c2e3;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #dbe7f7, #eef3fb);
+  color: var(--text);
 }
 
 #app {
   min-height: 100vh;
-  padding-left: 2in;
-  padding-top: 1in;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 20px;
 }
 
+/* Panels */
 .panel {
   display: none;
-  background: #a9c2e3;
-  width: 640px;
-  min-height: 360px;
+  width: 680px;
+  background: var(--panel);
   padding: 40px;
-  box-sizing: border-box;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.08);
   position: relative;
 }
 
@@ -33,44 +50,109 @@ body {
   display: block;
 }
 
-h2 { margin-top: 0; font-weight: normal; }
-.subtext { font-size: 12px; margin-bottom: 20px; }
-.helper { font-size: 11px; margin-bottom: 10px; }
+/* Headings */
+h2 {
+  margin-top: 0;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
 
+.subtext {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 28px;
+}
+
+.helper {
+  font-size: 12px;
+  color: var(--muted);
+  margin: 6px 0 10px;
+}
+
+/* Menu */
 .menu div {
   margin: 14px 0;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
   width: fit-content;
-  cursor: pointer;
-  border-bottom: 2px solid #555;
+  padding-bottom: 4px;
+  border-bottom: 2px solid transparent;
 }
 
-.menu div:hover { opacity: 0.7; }
-
-.footer {
-  position: absolute;
-  bottom: 20px;
-  right: 40px;
-  font-size: 11px;
+.menu div:hover {
+  border-color: var(--primary);
+  color: var(--primary);
 }
 
-.back {
-  background: none;
-  border: none;
-  font-size: 14px;
-  cursor: pointer;
-  margin-bottom: 20px;
+/* Inputs */
+label {
+  font-size: 13px;
+  font-weight: 500;
 }
 
-input, textarea, select, button {
+input,
+textarea,
+select {
   width: 100%;
-  padding: 6px;
+  padding: 10px 12px;
   font-size: 14px;
-  margin: 6px 0;
+  margin: 6px 0 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
 }
 
-.result { margin-top: 15px; font-weight: bold; }
-.covered { color: green; }
-.not-covered { color: red; }
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+/* Buttons */
+button {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  background: var(--primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* Back button */
+.back {
+  width: auto;
+  background: none;
+  color: var(--primary);
+  padding: 0;
+  margin-bottom: 24px;
+  font-size: 14px;
+}
+
+/* Results */
+.result {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 6px;
+  background: #f3f6ff;
+  font-weight: 500;
+}
+
+/* Footer */
+.footer {
+  margin-top: 40px;
+  font-size: 11px;
+  color: var(--muted);
+  text-align: right;
+}
 </style>
 </head>
 
@@ -79,20 +161,20 @@ input, textarea, select, button {
 
 <!-- ================= HOME ================= -->
 <section id="home" class="panel active">
-  <h2>Click and go..</h2>
+  <h2>Internal Tools</h2>
   <p class="subtext">
-    Remember to follow the instructions and always ask if you have questions
+    Follow instructions carefully. Ask questions if anything is unclear.
   </p>
 
   <div class="menu">
-    <div onclick="navigate('coi')">COI</div>
-    <div onclick="navigate('calc')">Calculator</div>
-    <div onclick="navigate('coverage')">Coverage</div>
-    <div onclick="navigate('defects')">Manufacturer Defects</div>
+    <div onclick="navigate('coi')">COI Editor</div>
+    <div onclick="navigate('calc')">Reverse Markup Calculator</div>
+    <div onclick="navigate('coverage')">Coverage Search</div>
+    <div onclick="navigate('defects')">Manufacturer Defects Lookup</div>
   </div>
 
   <p class="footer">
-    Please let Chuck know if you have any suggestions, or shortcut requests
+    Please let Chuck know if you have any suggestions or shortcut requests
   </p>
 </section>
 
@@ -162,6 +244,7 @@ input, textarea, select, button {
 
 </div>
 
+<!-- ================= NAVIGATION ================= -->
 <script>
 function navigate(id) {
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
@@ -229,8 +312,6 @@ function calculateOriginal() {
     return;
   }
 
-  // Buckets ordered from LOWEST markup to HIGHEST
-  // so overlaps prefer LOWER markup (your rule)
   const buckets = [
     { min: 300, max: Infinity, m: 1.10 },
     { min: 160, max: 299,      m: 1.15 },
@@ -262,7 +343,6 @@ function calculateOriginal() {
   calcResult.textContent =
     `Original Part Cost: ${original.toFixed(2)}`;
 }
-
 </script>
 
 <!-- ================= COVERAGE DATA ================= -->
@@ -363,6 +443,3 @@ function searchDefects() {
 
 </body>
 </html>
-
-
-
