@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <title>Internal Tools</title>
 
-<script src="https://cdn.jsdelivr.net/npm/pdf-lib/dist/pdf-lib.min.js"></script>
-
 <style>
 :root {
   --bg: #eef3fb;
@@ -16,9 +14,7 @@
   --border: #e5e7eb;
 }
 
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   margin: 0;
@@ -35,7 +31,6 @@ body {
   padding: 60px 20px;
 }
 
-/* Panels */
 .panel {
   display: none;
   width: 680px;
@@ -46,11 +41,8 @@ body {
   position: relative;
 }
 
-.panel.active {
-  display: block;
-}
+.panel.active { display: block; }
 
-/* Headings */
 h2 {
   margin-top: 0;
   margin-bottom: 6px;
@@ -69,7 +61,6 @@ h2 {
   margin: 6px 0 10px;
 }
 
-/* Menu */
 .menu div {
   margin: 14px 0;
   font-size: 15px;
@@ -85,7 +76,6 @@ h2 {
   color: var(--primary);
 }
 
-/* Inputs */
 label {
   font-size: 13px;
   font-weight: 500;
@@ -110,7 +100,6 @@ select:focus {
   border-color: var(--primary);
 }
 
-/* Buttons */
 button {
   width: 100%;
   padding: 10px;
@@ -123,11 +112,8 @@ button {
   cursor: pointer;
 }
 
-button:hover {
-  opacity: 0.9;
-}
+button:hover { opacity: 0.9; }
 
-/* Back button */
 .back {
   width: auto;
   background: none;
@@ -137,7 +123,6 @@ button:hover {
   font-size: 14px;
 }
 
-/* Results */
 .result {
   margin-top: 16px;
   padding: 12px;
@@ -146,7 +131,6 @@ button:hover {
   font-weight: 500;
 }
 
-/* Footer */
 .footer {
   margin-top: 40px;
   font-size: 11px;
@@ -166,13 +150,13 @@ button:hover {
    style="position:absolute; top:20px; right:30px; font-size:12px; color:#6b7280; text-decoration:none;">
    General Guidelines
 </a>
+
   <h2>Internal Tools</h2>
   <p class="subtext">
     Follow instructions carefully. Ask questions if anything is unclear.
   </p>
 
   <div class="menu">
-    <div onclick="navigate('coi')">COI Editor</div>
     <div onclick="navigate('calc')">Reverse Markup Calculator</div>
     <div onclick="navigate('coverage')">Coverage Search</div>
     <div onclick="navigate('defects')">Manufacturer Defects Lookup</div>
@@ -181,26 +165,6 @@ button:hover {
   <p class="footer">
     Please let Chuck know if you have any suggestions or shortcut requests
   </p>
-</section>
-
-<!-- ================= COI ================= -->
-<section id="coi" class="panel">
-<button class="back" onclick="navigate('home')">← Back</button>
-
-<h2>COI Editor</h2>
-<p class="helper">This is for customers requesting a copy of our COI</p>
-
-<label>Appointment Date (MM/DD/YYYY)</label>
-<input type="text" id="date">
-
-<label>Additional Insured</label>
-<p class="helper">We only allow up to 3 additional insured</p>
-<textarea id="description" rows="4"></textarea>
-
-<label>Certificate Holder</label>
-<textarea id="holder" rows="3"></textarea>
-
-<button id="download">Download Edited PDF</button>
 </section>
 
 <!-- ================= CALCULATOR ================= -->
@@ -254,15 +218,19 @@ button:hover {
 
 <div id="defectResult" class="result"></div>
 </section>
-  
+
+</div>
+
 <!-- ================= NAVIGATION ================= -->
 <script>
 function navigate(id) {
   document.querySelectorAll(".panel").forEach(p => p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
+</script>
 
-/* ================= CSV PARSER ================= */
+<!-- ================= CSV PARSER ================= -->
+<script>
 function parseCSVSafe(text) {
   const rows = [];
   let row = [], val = "", inQuotes = false;
@@ -279,40 +247,6 @@ function parseCSVSafe(text) {
 }
 </script>
 
-<!-- ================= COI SCRIPT ================= -->
-<script>
-document.getElementById("download").onclick = async () => {
-  const res = await fetch(
-    "https://raw.githubusercontent.com/chuckccpuls-dotcom/COI/main/COI2.pdf"
-  );
-  const bytes = await res.arrayBuffer();
-
-  const pdf = await PDFLib.PDFDocument.load(bytes);
-  const page = pdf.getPages()[0];
-  const font = await pdf.embedFont(PDFLib.StandardFonts.Helvetica);
-
-  page.drawText(date.value, { x: 530, y: 740, font, size: 8 });
-
-  let y = 182;
-  description.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size: 8 });
-    y -= 10;
-  });
-
-  y = 84;
-  holder.value.split("\n").forEach(l => {
-    page.drawText(l, { x: 50, y, font, size: 8 });
-    y -= 10;
-  });
-
-  const out = await pdf.save();
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([out], { type: "application/pdf" }));
-  a.download = "COI Copy.pdf";
-  a.click();
-};
-</script>
-
 <!-- ================= CALCULATOR ================= -->
 <script>
 function calculateOriginal() {
@@ -325,13 +259,13 @@ function calculateOriginal() {
 
   const buckets = [
     { min: 300, max: Infinity, m: 1.10 },
-    { min: 160, max: 299,      m: 1.15 },
-    { min: 100, max: 159,      m: 1.30 },
-    { min: 61,  max: 99,       m: 1.40 },
-    { min: 31,  max: 60,       m: 1.45 },
-    { min: 21,  max: 30,       m: 1.65 },
-    { min: 11,  max: 20,       m: 1.80 },
-    { min: 1,   max: 10,       m: 2.00 }
+    { min: 160, max: 299, m: 1.15 },
+    { min: 100, max: 159, m: 1.30 },
+    { min: 61, max: 99, m: 1.40 },
+    { min: 31, max: 60, m: 1.45 },
+    { min: 21, max: 30, m: 1.65 },
+    { min: 11, max: 20, m: 1.80 },
+    { min: 1, max: 10, m: 2.00 }
   ];
 
   let original;
@@ -351,12 +285,11 @@ function calculateOriginal() {
     return;
   }
 
-  calcResult.textContent =
-    `Original Part Cost: ${original.toFixed(2)}`;
+  calcResult.textContent = `Original Part Cost: ${original.toFixed(2)}`;
 }
 </script>
 
-<!-- ================= COVERAGE DATA ================= -->
+<!-- ================= COVERAGE + DEFECT SCRIPTS ================= -->
 <script>
 const coverageURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
@@ -409,10 +342,7 @@ searchItem.oninput = function () {
     ? `${m.item} — ${m.coverage}`
     : "Item not found";
 };
-</script>
 
-<!-- ================= DEFECT DATA ================= -->
-<script>
 const defectURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
 
@@ -454,6 +384,3 @@ function searchDefects() {
 
 </body>
 </html>
-
-
-
