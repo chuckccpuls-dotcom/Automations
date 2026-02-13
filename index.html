@@ -376,11 +376,15 @@ function searchDefects() {
 
   defectResult.innerHTML = m
     ? `<strong>Model:</strong> ${m.model}<br>
-       <strong>Part:</strong> ${m.part}<br>
-       <strong>Issue:</strong> ${m.issue}`
+     <strong>Part:</strong> ${m.part}<br>
+     <strong>Issue:</strong> ${m.issue}<br>
+     ${m.link ? `<strong>Reference:</strong> 
+     <a href="${m.link}" target="_blank">View Details</a>` : ""}`
     : "The model is not listed under any known recalls/defects";
+
 }
 </script>
 
 </body>
 </html>
+
