@@ -580,16 +580,6 @@ function apptRemoveRow(btn) {
   apptCalculateTotal();
 }
 
-function apptCalculateTotal() {
-  let sum = 0;
-  document.querySelectorAll("#appointmentSummary input[type='number']").forEach(input => {
-    if (input.id !== "total") {
-      sum += Number(input.value) || 0;
-    }
-  });
-  document.getElementById("total").value = sum.toFixed(2);
-}
- 
 function apptDownloadPDF() {
   apptCalculateTotal();
 
@@ -601,34 +591,35 @@ function apptDownloadPDF() {
   const original = document.querySelector("#appointmentSummary .appt-wrapper");
   const clone = original.cloneNode(true);
 
-  // Remove back button if present
-  clone.querySelectorAll(".back").forEach(b => b.remove());
+  // Remove UI-only buttons
+  clone.querySelectorAll("button").forEach(btn => btn.remove());
 
-  // Create clean temp container
+  // Create completely isolated render container
   const tempContainer = document.createElement("div");
-  tempContainer.style.width = "794px";          // Exact A4 width in px at 96 DPI
-  tempContainer.style.padding = "20px";
+  tempContainer.style.position = "fixed";
+  tempContainer.style.top = "0";
+  tempContainer.style.left = "0";
+  tempContainer.style.width = "794px";       // A4 width
   tempContainer.style.background = "#ffffff";
-  tempContainer.style.margin = "0 auto";
+  tempContainer.style.padding = "20px";
+  tempContainer.style.zIndex = "-1";         // Keep hidden
   tempContainer.appendChild(clone);
 
   document.body.appendChild(tempContainer);
 
   const opt = {
-    margin: [10, 10, 10, 10],                   // mm: top, left, bottom, right
+    margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
     html2canvas: {
       scale: 2,
-      useCORS: true
+      scrollY: 0,
+      windowWidth: 794
     },
     jsPDF: {
       unit: 'mm',
       format: 'a4',
       orientation: 'portrait'
-    },
-    pagebreak: {
-      mode: ['css', 'legacy']
     }
   };
 
@@ -650,6 +641,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
