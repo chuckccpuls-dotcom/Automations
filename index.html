@@ -154,6 +154,8 @@ button:hover {
   page-break-inside: avoid;
 }
 
+/* ===== DELETE BUTTON COLUMN ===== */
+
 .appt-wrapper table th:last-child,
 .appt-wrapper table td:last-child {
   width: 40px;
@@ -176,37 +178,11 @@ button:hover {
   color: #ef4444;
 }
 
-/* ===== TOTALS TABLE ===== */
+/* ===== HEADER ===== */
 
-#totalsTable {
-  width: 100%;
-  margin-top: 12px;
-  border-collapse: collapse;
-}
-
-#totalsTable th,
-#totalsTable td {
-  border: 1px solid #000;
-  padding: 8px;
-  font-size: 13px;
-}
-
-#totalsTable input {
-  width: 100%;
-  border: none;
-  outline: none;
-  text-align: right;
-}
-
-#totalsTable tr:last-child td {
-  font-weight: bold;
-  border-top: 2px solid #000;
-}
-  
 #appointmentSummary {
   background: white;
 }
-
 
 .appt-header {
   display: flex;
@@ -229,18 +205,8 @@ button:hover {
   text-align: right;
   line-height: 1.4;
 }
-  
-  
-#appointmentSummary .appt-wrapper {
-  font-family: Helvetica, Arial, sans-serif;
-  color: #000;
-}
-.appt-wrapper h3 {
-  margin-top: 25px;
-  border-bottom: 2px solid #000;
-  padding-bottom: 5px;
-  font-weight: 600;
-}
+
+/* ===== GRID ===== */
 
 .appt-wrapper .grid {
   display: grid;
@@ -252,6 +218,8 @@ button:hover {
 .appt-wrapper .full {
   grid-column: 1 / -1;
 }
+
+/* ===== TABLES ===== */
 
 .appt-wrapper table {
   width: 100%;
@@ -270,6 +238,8 @@ button:hover {
   text-align: right;
 }
 
+/* ===== BUTTONS ===== */
+
 .appt-wrapper .btn {
   margin-top: 10px;
   padding: 6px 12px;
@@ -277,10 +247,21 @@ button:hover {
   cursor: pointer;
 }
 
+/* ===== TOTALS (RIGHT SIDE BLOCK) ===== */
+
 .appt-wrapper .totals {
   width: 260px;
   margin-left: auto;
   margin-top: 20px;
+  border-collapse: collapse;
+}
+
+.appt-wrapper .totals td:first-child {
+  width: 65%;
+}
+
+.appt-wrapper .totals td:last-child {
+  width: 35%;
 }
 
 .appt-wrapper .totals input {
@@ -288,22 +269,30 @@ button:hover {
   padding: 6px 8px;
   font-size: 13px;
   border: 1px solid #000;
-  border-radius: 4px;
   background: #fff;
   text-align: right;
-} 
+  box-sizing: border-box;
+}
+
+/* Remove number spinners */
 .appt-wrapper input[type=number]::-webkit-inner-spin-button,
 .appt-wrapper input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
 .appt-wrapper input[type=number] {
   -moz-appearance: textfield;
-} 
+}
+
+/* ===== PANEL WIDTH ===== */
+
 #appointmentSummary.panel {
   width: 900px;
   padding: 20px 30px;
   box-shadow: none;
-}  
+}
+
 </style>
 </head>
 
@@ -775,6 +764,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
