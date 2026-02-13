@@ -250,7 +250,7 @@ button:hover { opacity: 0.9; }
     <div onclick="navigate('calc')">Reverse Markup Calculator</div>
     <div onclick="navigate('coverage')">Coverage Search</div>
     <div onclick="navigate('defects')">Manufacturer Defects Lookup</div>
-    <div onclick="navigate('appointmentSummary')">Appointment Summary Creator</div>
+    <div onclick="navigate('appointmentSummary')">Invoice/Summary Creator</div>
   </div>
 
   <p class="footer">
@@ -565,7 +565,6 @@ function searchDefects() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
 <script>
-<script>
 function apptAddRow(tableId) {
   const table = document.getElementById(tableId);
   const row = table.insertRow(-1);
@@ -639,6 +638,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
