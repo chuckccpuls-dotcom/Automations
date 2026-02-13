@@ -352,41 +352,55 @@ fetch(defectURL)
   .then(r => r.text())
   .then(csv => {
     const rows = parseCSVSafe(csv).slice(1);
+
     defectData = rows
-      .filter(r => r[0])
+      .filter(r => r && r.length >= 1 && r[0])
       .map(r => ({
-        model: r[0].trim(),
-        part: r[1]?.trim(),
-        issue: r[2]?.trim()
-        link: r[3]?.trim() 
+        model: (r[0] || "").trim(),
+        part: (r[1] || "").trim(),
+        issue: (r[2] || "").trim(),
+        link: (r[3] || "").trim()
       }));
   });
 
-function normalize(str) {
-  return str.toLowerCase().replace(/\s+/g,"").replace(/[^a-z0-9]/g,"");
-}
 
 function searchDefects() {
   const q = normalize(modelSearch.value);
+
   if (!q) {
     defectResult.textContent = "Please enter a model number.";
     return;
   }
 
+  if (!defectData || defectData.length === 0) {
+    defectResult.textContent = "Defect database is still loading. Please try again.";
+    return;
+  }
+
   const m = defectData.find(d => normalize(d.model).includes(q));
 
-  defectResult.innerHTML = m
-    ? `<strong>Model:</strong> ${m.model}<br>
-     <strong>Part:</strong> ${m.part}<br>
-     <strong>Issue:</strong> ${m.issue}<br>
-     ${m.link ? `<strong>Reference:</strong> 
-     <a href="${m.link}" target="_blank">View Details</a>` : ""}`
-    : "The model is not listed under any known recalls/defects";
+  if (!m) {
+    defectResult.textContent =
+      "The model is not listed under any known recalls/defects";
+    return;
+  }
 
+  defectResult.innerHTML = `
+    <strong>Model:</strong> ${m.model}<br>
+    <strong>Part:</strong> ${m.part}<br>
+    <strong>Issue:</strong> ${m.issue}<br>
+    ${
+      m.link
+        ? `<strong>Reference:</strong> 
+           <a href="${m.link}" target="_blank">View Details</a>`
+        : ""
+    }
+  `;
 }
 </script>
 
 </body>
 </html>
+
 
 
