@@ -340,6 +340,10 @@ button:hover {
   font-weight: 600;
 }
 
+  #discount {
+  color: #dc2626;
+}
+
 </style>
 </head>
 
@@ -671,7 +675,7 @@ function searchDefects() {
 
   <div class="totals-row">
     <span>Credits &amp; Discounts</span>
-    <input type="number" step="0.01" id="discount" oninput="apptCalculateTotal()">
+    <input type="number" step="0.01" id="discount" oninput="apptCalculateTotal()" placeholder="0.00">
   </div>
 
   <div class="totals-row total-line">
@@ -712,20 +716,27 @@ function apptRemoveRow(btn) {
 function apptCalculateTotal() {
   let sum = 0;
 
-  // Add all labor + parts numbers
+  // Add labor + parts
   document.querySelectorAll("#appointmentSummary table input[type='number']").forEach(input => {
     sum += Number(input.value) || 0;
   });
 
   const ssfee = Number(document.getElementById("ssfee")?.value) || 0;
   const tax = Number(document.getElementById("tax")?.value) || 0;
-  const discount = Number(document.getElementById("discount")?.value) || 0;
+
+  let discountInput = document.getElementById("discount");
+  let discountValue = Math.abs(Number(discountInput?.value) || 0);
 
   sum += ssfee + tax;
-  sum -= discount; // subtract credits/discounts
+  sum -= discountValue;
 
   document.getElementById("total").value = sum.toFixed(2);
+
+  // Show negative sign visually (without breaking math)
+  if (discountValue > 0) {
+    discountInput.value = discountValue;
   }
+}
 
 async function apptDownloadPDF() {
   apptCalculateTotal();
@@ -824,6 +835,7 @@ async function apptDownloadPDF() {
 
 </body>
 </html>
+
 
 
 
