@@ -154,20 +154,28 @@ button:hover {
   page-break-inside: avoid;
 }
 
-.appt-wrapper table button.btn {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  font-size: 13px;
-  background: #e5e7eb;
-  color: #333;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+.appt-wrapper table th:last-child,
+.appt-wrapper table td:last-child {
+  width: 40px;
+  text-align: center;
 }
 
+.appt-wrapper table button.btn {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  font-size: 13px;
+  background: transparent;
+  border: none;          
+  color: #888;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 .appt-wrapper table button.btn:hover {
-  background: #dc2626;
-  color: white;
+  color: #ef4444;   /* red X on hover */
 }
   
 #appointmentSummary {
@@ -720,6 +728,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
