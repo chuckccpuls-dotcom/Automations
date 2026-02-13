@@ -661,12 +661,17 @@ function searchDefects() {
 
   <div class="totals-row">
     <span>S&amp;S Fee</span>
-    <input type="number" step="0.01" oninput="apptCalculateTotal()">
+    <input type="number" step="0.01" id="ssfee" oninput="apptCalculateTotal()">
   </div>
 
   <div class="totals-row">
     <span>Tax</span>
-    <input type="number" step="0.01" oninput="apptCalculateTotal()">
+    <input type="number" step="0.01" id="tax" oninput="apptCalculateTotal()">
+  </div>
+
+  <div class="totals-row">
+    <span>Credits &amp; Discounts</span>
+    <input type="number" step="0.01" id="discount" oninput="apptCalculateTotal()">
   </div>
 
   <div class="totals-row total-line">
@@ -675,6 +680,7 @@ function searchDefects() {
   </div>
 
 </div>
+
 
 
 
@@ -705,13 +711,20 @@ function apptRemoveRow(btn) {
 
 function apptCalculateTotal() {
   let sum = 0;
-  document.querySelectorAll("#appointmentSummary input[type='number']").forEach(input => {
-    if (input.id !== "total") {
-      sum += Number(input.value) || 0;
-    }
+
+  // Add all labor + parts numbers
+  document.querySelectorAll("#appointmentSummary table input[type='number']").forEach(input => {
+    sum += Number(input.value) || 0;
   });
+
+  const ssfee = Number(document.getElementById("ssfee")?.value) || 0;
+  const tax = Number(document.getElementById("tax")?.value) || 0;
+  const discount = Number(document.getElementById("discount")?.value) || 0;
+
+  sum += ssfee + tax;
+  sum -= discount; // subtract credits/discounts
+
   document.getElementById("total").value = sum.toFixed(2);
-}
 
 async function apptDownloadPDF() {
   apptCalculateTotal();
@@ -810,6 +823,7 @@ async function apptDownloadPDF() {
 
 </body>
 </html>
+
 
 
 
