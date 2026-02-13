@@ -150,6 +150,22 @@ button:hover { opacity: 0.9; }
   page-break-inside: avoid;
 }
 
+.appt-wrapper table button.btn {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  font-size: 13px;
+  background: #e5e7eb;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.appt-wrapper table button.btn:hover {
+  background: #dc2626;
+  color: white;
+}
+  
 #appointmentSummary {
   background: white;
 }
@@ -518,6 +534,7 @@ function searchDefects() {
       <option>Dishwasher</option>
       <option>Oven / Range</option>
       <option>Microwave</option>
+      <option>Cooktop</option>
     </select>
   </div>
 </div>
@@ -694,6 +711,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
