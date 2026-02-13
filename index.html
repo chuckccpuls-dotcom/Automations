@@ -101,18 +101,22 @@ select:focus {
 }
 
 button {
-  width: 100%;
-  padding: 10px;
-  font-size: 14px;
+  padding: 8px 14px;
+  font-size: 13px;
   font-weight: 500;
   background: var(--primary);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
+  width: auto;
+  transition: all 0.2s ease;
 }
 
-button:hover { opacity: 0.9; }
+button:hover {
+  background: #244bb5;
+}
+
 
 .back {
   width: auto;
@@ -634,15 +638,19 @@ async function apptDownloadPDF() {
   clone.querySelectorAll("button").forEach(btn => btn.remove());
 
   // Replace inputs with static text
-  clone.querySelectorAll("input, textarea, select").forEach(el => {
+  const originalFields = original.querySelectorAll("input, textarea, select");
+  const cloneFields = clone.querySelectorAll("input, textarea, select");
+
+  originalFields.forEach((origEl, index) => {
+    const cloneEl = cloneFields[index];
+
     let value = "";
 
-    if (el.tagName === "SELECT") {
-      const selectedOption = el.options[el.selectedIndex];
-      value = selectedOption ? selectedOption.text : "";
+    if (origEl.tagName === "SELECT") {
+      value = origEl.options[origEl.selectedIndex]?.text || "";
     } else {
-      value = el.value || "";
-    }  
+      value = origEl.value || "";
+    }
 
     const div = document.createElement("div");
     div.textContent = value;
@@ -650,8 +658,9 @@ async function apptDownloadPDF() {
     div.style.padding = "4px 0";
     div.style.borderBottom = "1px solid #ccc";
 
-    el.parentNode.replaceChild(div, el);
+    cloneEl.parentNode.replaceChild(div, cloneEl);
   });
+
 
 
   // Temporary render container
@@ -711,6 +720,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
