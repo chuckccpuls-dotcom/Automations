@@ -601,21 +601,22 @@ function apptDownloadPDF() {
   const original = document.querySelector("#appointmentSummary .appt-wrapper");
   const clone = original.cloneNode(true);
 
+  // Remove buttons from PDF
   clone.querySelectorAll("button").forEach(btn => btn.remove());
 
+  // Create temporary wrapper
   const tempContainer = document.createElement("div");
-  tempContainer.style.position = "fixed";
-  tempContainer.style.top = "0";
-  tempContainer.style.left = "0";
-  tempContainer.style.width = "794px";
+  tempContainer.style.width = "794px";   // A4 width
   tempContainer.style.background = "#ffffff";
   tempContainer.style.padding = "20px";
+  tempContainer.style.margin = "0 auto";
   tempContainer.appendChild(clone);
 
+  // Add to DOM (must be visible to render properly)
   document.body.appendChild(tempContainer);
 
   const opt = {
-    margin: 0,
+    margin: 10,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
     html2canvas: { scale: 2 },
@@ -630,6 +631,7 @@ function apptDownloadPDF() {
       document.body.removeChild(tempContainer);
     });
 }
+
 </script>
 
 
@@ -638,6 +640,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
