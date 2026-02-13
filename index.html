@@ -143,7 +143,37 @@ button:hover { opacity: 0.9; }
   font-family: Helvetica, Arial, sans-serif;
   font-weight: 400;
 }
+#appointmentSummary {
+  background: white;
+}
 
+.appt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.appt-header .logo {
+  max-width: 160px;
+}
+
+.appt-header .logo img {
+  width: 100%;
+  height: auto;
+}
+
+.appt-header .company {
+  font-size: 13px;
+  text-align: right;
+  line-height: 1.4;
+}
+  
+  
+#appointmentSummary .appt-wrapper {
+  font-family: Helvetica, Arial, sans-serif;
+  color: #000;
+}
 .appt-wrapper h3 {
   margin-top: 25px;
   border-bottom: 2px solid #000;
@@ -192,6 +222,11 @@ button:hover { opacity: 0.9; }
   margin-top: 15px;
 }
   
+#appointmentSummary.panel {
+  width: 900px;
+  padding: 20px 30px;
+  box-shadow: none;
+}  
 </style>
 </head>
 
@@ -436,7 +471,7 @@ function searchDefects() {
 <div class="appt-wrapper">
 
 <!-- HEADER -->
-<div class="header">
+<div class="appt-header">
   <div class="logo">
     <img src="/Appointment-Summary/PulsLogo.png" alt="Puls Logo">
   </div>
@@ -527,6 +562,8 @@ function searchDefects() {
 </div>
 </section>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
 <script>
 function apptAddRow(tableId) {
   const table = document.getElementById(tableId);
@@ -552,16 +589,36 @@ function apptCalculateTotal() {
   });
   document.getElementById("total").value = sum.toFixed(2);
 }
-
+ 
 function apptDownloadPDF() {
   apptCalculateTotal();
-  alert("PDF functionality preserved. Ready for automation upgrade.");
+
+  const apptId = document.getElementById("appointmentId").value.trim();
+  const fileName = apptId
+    ? `Appointment Summary - ${apptId}.pdf`
+    : `Appointment Summary.pdf`;
+
+  const element = document.querySelector("#appointmentSummary .appt-wrapper");
+
+  const opt = {
+    margin: 0.5,
+    filename: fileName,
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+  };
+
+  html2pdf().set(opt).from(element).save();
 }
+
 </script>
+
 
 
 </body>
 </html>
+
+</div> 
 
 
 
