@@ -198,7 +198,6 @@ button:hover {
   text-align: right;
 }
 
-/* Bold final total row */
 #totalsTable tr:last-child td {
   font-weight: bold;
   border-top: 2px solid #000;
@@ -279,11 +278,27 @@ button:hover {
 }
 
 .appt-wrapper .totals {
-  width: 320px;
+  width: 260px;
   margin-left: auto;
-  margin-top: 15px;
+  margin-top: 20px;
 }
-  
+
+.appt-wrapper .totals input {
+  width: 100%;
+  padding: 6px 8px;
+  font-size: 13px;
+  border: 1px solid #000;
+  border-radius: 4px;
+  background: #fff;
+  text-align: right;
+} 
+.appt-wrapper input[type=number]::-webkit-inner-spin-button,
+.appt-wrapper input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+.appt-wrapper input[type=number] {
+  -moz-appearance: textfield;
+} 
 #appointmentSummary.panel {
   width: 900px;
   padding: 20px 30px;
@@ -760,6 +775,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
