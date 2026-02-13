@@ -565,6 +565,7 @@ function searchDefects() {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
 <script>
+<script>
 function apptAddRow(tableId) {
   const table = document.getElementById(tableId);
   const row = table.insertRow(-1);
@@ -580,6 +581,16 @@ function apptRemoveRow(btn) {
   apptCalculateTotal();
 }
 
+function apptCalculateTotal() {
+  let sum = 0;
+  document.querySelectorAll("#appointmentSummary input[type='number']").forEach(input => {
+    if (input.id !== "total") {
+      sum += Number(input.value) || 0;
+    }
+  });
+  document.getElementById("total").value = sum.toFixed(2);
+}
+
 function apptDownloadPDF() {
   apptCalculateTotal();
 
@@ -591,18 +602,15 @@ function apptDownloadPDF() {
   const original = document.querySelector("#appointmentSummary .appt-wrapper");
   const clone = original.cloneNode(true);
 
-  // Remove UI-only buttons
   clone.querySelectorAll("button").forEach(btn => btn.remove());
 
-  // Create completely isolated render container
   const tempContainer = document.createElement("div");
   tempContainer.style.position = "fixed";
   tempContainer.style.top = "0";
   tempContainer.style.left = "0";
-  tempContainer.style.width = "794px";       // A4 width
+  tempContainer.style.width = "794px";
   tempContainer.style.background = "#ffffff";
   tempContainer.style.padding = "20px";
-  tempContainer.style.zIndex = "-1";         // Keep hidden
   tempContainer.appendChild(clone);
 
   document.body.appendChild(tempContainer);
@@ -611,16 +619,8 @@ function apptDownloadPDF() {
     margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 2,
-      scrollY: 0,
-      windowWidth: 794
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    }
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
   };
 
   html2pdf()
@@ -631,8 +631,6 @@ function apptDownloadPDF() {
       document.body.removeChild(tempContainer);
     });
 }
-
-
 </script>
 
 
@@ -641,6 +639,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
