@@ -665,22 +665,22 @@ function searchDefects() {
 
   <div class="totals-row">
     <span>S&amp;S Fee</span>
-    <input type="number" step="0.01" id="ssfee" oninput="apptCalculateTotal()">
+    <input type="text" inputmode="decimal" class="money" id="ssfee" oninput="apptCalculateTotal()">
   </div>
 
   <div class="totals-row">
     <span>Tax</span>
-    <input type="number" step="0.01" id="tax" oninput="apptCalculateTotal()">
+    <input type="text" inputmode="decimal" class="money" id="tax" oninput="apptCalculateTotal()">
   </div>
 
   <div class="totals-row">
     <span>Credits &amp; Discounts</span>
-    <input type="number" step="0.01" id="discount" oninput="apptCalculateTotal()" placeholder="0.00">
+    <input type="text" inputmode="decimal" class="money" id="discount" oninput="apptCalculateTotal()" placeholder="0.00">
   </div>
 
   <div class="totals-row total-line">
     <span>Total</span>
-    <input type="number" step="0.01" id="total" readonly>
+    <input type="text" id="total" readonly>
   </div>
 
 </div>
@@ -698,12 +698,13 @@ function searchDefects() {
 
   
 <script>
+  
 function apptAddRow(tableId) {
   const table = document.getElementById(tableId);
   const row = table.insertRow(-1);
   row.innerHTML = `
     <td><input></td>
-    <td><input type="number" step="0.01" oninput="apptCalculateTotal()"></td>
+    <td><input type="text" inputmode="decimal" class="money" oninput="apptCalculateTotal()"></td>
     <td><button class="btn" onclick="apptRemoveRow(this)">✕</button></td>
   `;
 }
@@ -712,31 +713,34 @@ function apptRemoveRow(btn) {
   btn.closest("tr").remove();
   apptCalculateTotal();
 }
-
+function parseMoney(value) {
+  if (!value) return 0;
+  value = value.replace(/[^0-9.-]/g, "");
+  return parseFloat(value) || 0;
+}
 function apptCalculateTotal() {
   let sum = 0;
 
-  // Add labor + parts
-  document.querySelectorAll("#appointmentSummary table input[type='number']").forEach(input => {
-    sum += Number(input.value) || 0;
+  // Labor + Parts
+  document.querySelectorAll("#appointmentSummary table input.money").forEach(input => {
+    sum += parseMoney(input.value);
   });
 
-  const ssfee = Number(document.getElementById("ssfee")?.value) || 0;
-  const tax = Number(document.getElementById("tax")?.value) || 0;
-
-  let discountInput = document.getElementById("discount");
-  let discountValue = Math.abs(Number(discountInput?.value) || 0);
+  const ssfee = parseMoney(document.getElementById("ssfee")?.value);
+  const tax = parseMoney(document.getElementById("tax")?.value);
+  const discount = parseMoney(document.getElementById("discount")?.value);
 
   sum += ssfee + tax;
-  sum -= discountValue;
+  sum -= Math.abs(discount);
 
   document.getElementById("total").value = sum.toFixed(2);
-
-  // Show negative sign visually (without breaking math)
-  if (discountValue > 0) {
-    discountInput.value = discountValue;
-  }
 }
+  document.addEventListener("blur", function(e) {
+  if (e.target.classList.contains("money")) {
+    let val = parseMoney(e.target.value);
+    e.target.value = val ? val.toFixed(2) : "";
+  }
+}, true);
 
 async function apptDownloadPDF() {
   apptCalculateTotal();
@@ -835,6 +839,7 @@ async function apptDownloadPDF() {
 
 </body>
 </html>
+
 
 
 
