@@ -289,118 +289,96 @@ function calculateOriginal() {
 }
 </script>
 
-<!-- ================= COVERAGE + DEFECT SCRIPTS ================= -->
+<!-- ================= DEFECT SCRIPT ================= -->
 <script>
-const coverageURL =
-"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv";
-
-let coverageData = [];
-
-fetch(coverageURL)
-  .then(r => r.text())
-  .then(csv => {
-    const rows = parseCSVSafe(csv).slice(1);
-    coverageData = rows.map(r => ({
-      main: r[0]?.trim(),
-      sub: r[1]?.trim(),
-      item: r[2]?.trim(),
-      coverage: r[3]?.trim()
-    }));
-
-    [...new Set(coverageData.map(d => d.main).filter(Boolean))]
-      .forEach(m => mainCategory.add(new Option(m, m)));
-  });
-
-mainCategory.onchange = function () {
-  subCategory.innerHTML = `<option value="">Select Sub Category</option>`;
-  subCategory.disabled = !this.value;
-  searchItem.disabled = true;
-  coverageResult.textContent = "";
-
-  const subs = coverageData
-    .filter(d => d.main === this.value)
-    .map(d => d.sub);
-
-  [...new Set(subs)].forEach(s =>
-    subCategory.add(new Option(s, s))
-  );
-};
-
-subCategory.onchange = function () {
-  searchItem.disabled = !this.value;
-};
-
-searchItem.oninput = function () {
-  const q = this.value.toLowerCase();
-  const m = coverageData.find(d =>
-    d.main === mainCategory.value &&
-    d.sub === subCategory.value &&
-    d.item?.toLowerCase().includes(q)
-  );
-
-  coverageResult.textContent = m
-    ? `${m.item} — ${m.coverage}`
-    : "Item not found";
-};
-
 const defectURL =
 "https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=1606148883";
 
 let defectData = [];
+let defectLoaded = false;
 
+/* ===== CSV FETCH ===== */
 fetch(defectURL)
-  .then(r => r.text())
+  .then(response => response.text())
   .then(csv => {
-    const rows = parseCSVSafe(csv).slice(1);
+    const rows = parseCSVSafe(csv);
 
     defectData = rows
-      .filter(r => r && r.length >= 1 && r[0])
-      .map(r => ({
-        model: (r[0] || "").trim(),
-        part: (r[1] || "").trim(),
-        issue: (r[2] || "").trim(),
-        link: (r[3] || "").trim()
+      .slice(1) // remove header
+      .filter(row => row && row.length > 0 && row[0])
+      .map(row => ({
+        model: (row[0] || "").trim(),
+        part: (row[1] || "").trim(),
+        issue: (row[2] || "").trim(),
+        link: (row[3] || "").trim()
       }));
+
+    defectLoaded = true;
+  })
+  .catch(error => {
+    console.error("Defect data failed to load:", error);
   });
 
+/* ===== NORMALIZER ===== */
+function normalize(str) {
+  return (str || "")
+    .toLowerCase()
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9]/g, "");
+}
 
+/* ===== SEARCH FUNCTION ===== */
 function searchDefects() {
-  const q = normalize(modelSearch.value);
+  const input = document.getElementById("modelSearch");
+  const resultBox = document.getElementById("defectResult");
 
-  if (!q) {
-    defectResult.textContent = "Please enter a model number.";
+  if (!input || !resultBox) return;
+
+  const query = normalize(input.value);
+
+  if (!query) {
+    resultBox.textContent = "Please enter a model number.";
     return;
   }
 
-  if (!defectData || defectData.length === 0) {
-    defectResult.textContent = "Defect database is still loading. Please try again.";
+  if (!defectLoaded) {
+    resultBox.textContent = "Database loading, please try again.";
     return;
   }
 
-  const m = defectData.find(d => normalize(d.model).includes(q));
+  const match = defectData.find(d =>
+    normalize(d.model).includes(query)
+  );
 
-  if (!m) {
-    defectResult.textContent =
+  if (!match) {
+    resultBox.textContent =
       "The model is not listed under any known recalls/defects";
     return;
   }
 
-  defectResult.innerHTML = `
-    <strong>Model:</strong> ${m.model}<br>
-    <strong>Part:</strong> ${m.part}<br>
-    <strong>Issue:</strong> ${m.issue}<br>
-    ${
-      m.link
-        ? `<strong>Reference:</strong> 
-           <a href="${m.link}" target="_blank">View Details</a>`
-        : ""
-    }
+  let html = `
+    <strong>Model:</strong> ${match.model}<br>
+    <strong>Part:</strong> ${match.part}<br>
+    <strong>Issue:</strong> ${match.issue}<br>
   `;
+
+  if (match.link) {
+    html += `
+      <strong>Reference:</strong>
+      <a href="${match.link}" target="_blank">
+        View Details
+      </a>
+    `;
+  }
+
+  resultBox.innerHTML = html;
 }
 </script>
 
+
 </body>
 </html>
+
 
 
 
