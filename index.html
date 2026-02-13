@@ -628,21 +628,28 @@ async function apptDownloadPDF() {
   const pageWidth = pdf.internal.pageSize.getWidth();
   const pageHeight = pdf.internal.pageSize.getHeight();
 
-  const imgWidth = pageWidth;
+  const margin = 15; // mm margin on all sides
+
+  const printableWidth = pageWidth - margin * 2;
+  const printableHeight = pageHeight - margin * 2;
+
+  const imgWidth = printableWidth;
   const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
   let heightLeft = imgHeight;
   let position = 0;
 
-  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-  heightLeft -= pageHeight;
+  pdf.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+  heightLeft -= printableHeight;
 
   while (heightLeft > 0) {
-    position = heightLeft - imgHeight;
+    position -= printableHeight;
     pdf.addPage();
-    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
-    heightLeft -= pageHeight;
+    pdf.addImage(imgData, "PNG", margin, margin + position, imgWidth, imgHeight);
+    heightLeft -= printableHeight;
   }
+
+
 
   pdf.save(fileName);
 }
@@ -654,6 +661,7 @@ async function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
