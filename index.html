@@ -570,7 +570,9 @@ function searchDefects() {
 </div>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
   
 <script>
 function apptAddRow(tableId) {
@@ -598,8 +600,10 @@ function apptCalculateTotal() {
   document.getElementById("total").value = sum.toFixed(2);
 }
 
-function apptDownloadPDF() {
+async function apptDownloadPDF() {
   apptCalculateTotal();
+
+  const { jsPDF } = window.jspdf;
 
   const apptId = document.getElementById("appointmentId").value.trim();
   const fileName = apptId
@@ -608,29 +612,40 @@ function apptDownloadPDF() {
 
   const element = document.querySelector("#appointmentSummary .appt-wrapper");
 
-  const opt = {
-    margin: [10, 10, 10, 10],   // mm
-    filename: fileName,
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 2
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    }
-  };
+  const canvas = await html2canvas(element, {
+    scale: 2,
+    useCORS: true
+  });
 
-  html2pdf()
-    .set(opt)
-    .from(element)
-    .save();
+  const imgData = canvas.toDataURL("image/png");
+
+  const pdf = new jsPDF({
+    orientation: "portrait",
+    unit: "mm",
+    format: "a4"
+  });
+
+  const pageWidth = pdf.internal.pageSize.getWidth();
+  const pageHeight = pdf.internal.pageSize.getHeight();
+
+  const imgWidth = pageWidth;
+  const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+  let heightLeft = imgHeight;
+  let position = 0;
+
+  pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+  heightLeft -= pageHeight;
+
+  while (heightLeft > 0) {
+    position = heightLeft - imgHeight;
+    pdf.addPage();
+    pdf.addImage(imgData, "PNG", 0, position, imgWidth, imgHeight);
+    heightLeft -= pageHeight;
+  }
+
+  pdf.save(fileName);
 }
-
-
-
-
 </script>
 
 
@@ -639,6 +654,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
