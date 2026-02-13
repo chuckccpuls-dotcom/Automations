@@ -139,13 +139,21 @@ button:hover { opacity: 0.9; }
 }
 
 /* ===== APPOINTMENT SUMMARY STYLES ===== */
+
 .appt-wrapper * {
   font-family: Helvetica, Arial, sans-serif;
   font-weight: 400;
 }
+
+.appt-wrapper {
+  width: 100%;
+  page-break-inside: avoid;
+}
+
 #appointmentSummary {
   background: white;
 }
+
 
 .appt-header {
   display: flex;
@@ -618,28 +626,24 @@ function apptDownloadPDF() {
   document.body.appendChild(renderRoot);
 
   const opt = {
-    margin: 0,
+    margin: [10, 10, 10, 10],
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
     html2canvas: {
       scale: 2,
-      scrollY: 0,
-      windowWidth: 794
+      useCORS: true,
+      scrollY: 0
     },
     jsPDF: {
       unit: 'mm',
       format: 'a4',
       orientation: 'portrait'
+    },
+    pagebreak: {
+      mode: ['css']
     }
-  };
+};
 
-  html2pdf()
-    .set(opt)
-    .from(renderRoot)
-    .save()
-    .then(() => {
-      document.body.removeChild(renderRoot);
-    });
 }
 
 
@@ -651,6 +655,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
