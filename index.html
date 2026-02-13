@@ -601,39 +601,47 @@ function apptDownloadPDF() {
   const original = document.querySelector("#appointmentSummary .appt-wrapper");
   const clone = original.cloneNode(true);
 
-  // Remove buttons from PDF
   clone.querySelectorAll("button").forEach(btn => btn.remove());
 
-  // Create temporary wrapper
-  const tempContainer = document.createElement("div");
-  tempContainer.style.width = "794px";   // A4 width
-  tempContainer.style.background = "#ffffff";
-  tempContainer.style.padding = "20px";
-  tempContainer.style.margin = "0 auto";
-  tempContainer.appendChild(clone);
+  // Create isolated render root OUTSIDE layout system
+  const renderRoot = document.createElement("div");
+  renderRoot.style.position = "absolute";
+  renderRoot.style.top = "0";
+  renderRoot.style.left = "0";
+  renderRoot.style.width = "794px";
+  renderRoot.style.background = "#ffffff";
+  renderRoot.style.padding = "20px";
+  renderRoot.style.margin = "0";
+  renderRoot.style.display = "block";
 
-  // Add to DOM (must be visible to render properly)
-  document.body.appendChild(tempContainer);
+  renderRoot.appendChild(clone);
+  document.body.appendChild(renderRoot);
 
   const opt = {
-    margin: 10,
+    margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak: {
-      mode: ['avoid-all', 'css', 'legacy']
+    html2canvas: {
+      scale: 2,
+      scrollY: 0,
+      windowWidth: 794
+    },
+    jsPDF: {
+      unit: 'mm',
+      format: 'a4',
+      orientation: 'portrait'
     }
   };
 
   html2pdf()
     .set(opt)
-    .from(tempContainer)
+    .from(renderRoot)
     .save()
     .then(() => {
-      document.body.removeChild(tempContainer);
+      document.body.removeChild(renderRoot);
     });
 }
+
 
 </script>
 
@@ -643,6 +651,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
