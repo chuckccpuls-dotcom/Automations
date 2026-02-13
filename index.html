@@ -137,6 +137,61 @@ button:hover { opacity: 0.9; }
   color: var(--muted);
   text-align: right;
 }
+
+/* ===== APPOINTMENT SUMMARY STYLES ===== */
+.appt-wrapper * {
+  font-family: Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+
+.appt-wrapper h3 {
+  margin-top: 25px;
+  border-bottom: 2px solid #000;
+  padding-bottom: 5px;
+  font-weight: 600;
+}
+
+.appt-wrapper .grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 20px;
+  margin-top: 15px;
+}
+
+.appt-wrapper .full {
+  grid-column: 1 / -1;
+}
+
+.appt-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.appt-wrapper th,
+.appt-wrapper td {
+  border: 1px solid #000;
+  padding: 8px;
+  font-size: 13px;
+}
+
+.appt-wrapper .right {
+  text-align: right;
+}
+
+.appt-wrapper .btn {
+  margin-top: 10px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.appt-wrapper .totals {
+  width: 320px;
+  margin-left: auto;
+  margin-top: 15px;
+}
+  
 </style>
 </head>
 
@@ -160,6 +215,7 @@ button:hover { opacity: 0.9; }
     <div onclick="navigate('calc')">Reverse Markup Calculator</div>
     <div onclick="navigate('coverage')">Coverage Search</div>
     <div onclick="navigate('defects')">Manufacturer Defects Lookup</div>
+    <div onclick="navigate('appointmentSummary')">Appointment Summary</div>
   </div>
 
   <p class="footer">
@@ -218,8 +274,6 @@ button:hover { opacity: 0.9; }
 
 <div id="defectResult" class="result"></div>
 </section>
-
-</div>
 
 <!-- ================= NAVIGATION ================= -->
 <script>
@@ -375,9 +429,140 @@ function searchDefects() {
 }
 </script>
 
+<!-- ================= APPOINTMENT SUMMARY ================= -->
+<section id="appointmentSummary" class="panel">
+<button class="back" onclick="navigate('home')">← Back</button>
+
+<div class="appt-wrapper">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <img src="/Appointment-Summary/PulsLogo.png" alt="Puls Logo">
+  </div>
+  <div class="company">
+    1 Sansome Street, Suite 3500, #10054, San Francisco, 94104<br>
+    Support@Puls.com<br>
+    (860) 596-0177
+  </div>
+</div>
+
+<!-- CUSTOMER INFO -->
+<div class="grid">
+  <div><label>Customer Name</label><input></div>
+  <div><label>Appointment ID</label><input id="appointmentId"></div>
+  <div><label>Email Address</label><input type="email"></div>
+  <div><label>Date</label><input type="date"></div>
+  <div><label>Phone Number</label><input></div>
+  <div><label>Technician</label><input></div>
+  <div class="full"><label>Address</label><input></div>
+  <div>
+    <label>Service Type</label>
+    <select>
+      <option value="">Select</option>
+      <option>Inspection</option>
+      <option>Repair</option>
+      <option>Estimate</option>
+    </select>
+  </div>
+  <div>
+    <label>Appliance Type</label>
+    <select>
+      <option value="">Select</option>
+      <option>Refrigerator</option>
+      <option>Washer</option>
+      <option>Dryer</option>
+      <option>Dishwasher</option>
+      <option>Oven / Range</option>
+      <option>Microwave</option>
+    </select>
+  </div>
+</div>
+
+<h3>Appointment Summary</h3>
+
+<label>Inspection Note:</label>
+<textarea></textarea>
+
+<label>Recommendation:</label>
+<textarea></textarea>
+
+<h3>Labor</h3>
+<table id="laborTable">
+  <tr>
+    <th>Description</th>
+    <th class="right">Amount</th>
+    <th></th>
+  </tr>
+</table>
+<button class="btn" onclick="apptAddRow('laborTable')">+ Add Labor</button>
+
+<h3>Parts</h3>
+<table id="partsTable">
+  <tr>
+    <th>Description</th>
+    <th class="right">Amount</th>
+    <th></th>
+  </tr>
+</table>
+<button class="btn" onclick="apptAddRow('partsTable')">+ Add Parts</button>
+
+<table class="totals">
+  <tr>
+    <td>S&amp;S Fee</td>
+    <td><input type="number" step="0.01" oninput="apptCalculateTotal()"></td>
+  </tr>
+  <tr>
+    <td>Tax</td>
+    <td><input type="number" step="0.01" oninput="apptCalculateTotal()"></td>
+  </tr>
+  <tr>
+    <td><strong>Total</strong></td>
+    <td><input type="number" step="0.01" id="total" readonly></td>
+  </tr>
+</table>
+
+<button class="btn" onclick="apptDownloadPDF()">Download PDF</button>
+
+</div>
+</section>
+
+<script>
+function apptAddRow(tableId) {
+  const table = document.getElementById(tableId);
+  const row = table.insertRow(-1);
+  row.innerHTML = `
+    <td><input></td>
+    <td><input type="number" step="0.01" oninput="apptCalculateTotal()"></td>
+    <td><button class="btn" onclick="apptRemoveRow(this)">✕</button></td>
+  `;
+}
+
+function apptRemoveRow(btn) {
+  btn.closest("tr").remove();
+  apptCalculateTotal();
+}
+
+function apptCalculateTotal() {
+  let sum = 0;
+  document.querySelectorAll("#appointmentSummary input[type='number']").forEach(input => {
+    if (input.id !== "total") {
+      sum += Number(input.value) || 0;
+    }
+  });
+  document.getElementById("total").value = sum.toFixed(2);
+}
+
+function apptDownloadPDF() {
+  apptCalculateTotal();
+  alert("PDF functionality preserved. Ready for automation upgrade.");
+}
+</script>
+
 
 </body>
 </html>
+
 
 
 
