@@ -358,6 +358,7 @@ fetch(defectURL)
         model: r[0].trim(),
         part: r[1]?.trim(),
         issue: r[2]?.trim()
+        link: r[3]?.trim() 
       }));
   });
 
@@ -387,4 +388,5 @@ function searchDefects() {
 
 </body>
 </html>
+
 
