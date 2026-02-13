@@ -606,44 +606,20 @@ function apptDownloadPDF() {
     ? `Appointment Summary - ${apptId}.pdf`
     : `Appointment Summary.pdf`;
 
-  const original = document.querySelector("#appointmentSummary .appt-wrapper");
-  const clone = original.cloneNode(true);
-
-  clone.querySelectorAll("button").forEach(btn => btn.remove());
-
-  // Create isolated render root OUTSIDE layout system
-  const renderRoot = document.createElement("div");
-  renderRoot.style.position = "absolute";
-  renderRoot.style.top = "0";
-  renderRoot.style.left = "0";
-  renderRoot.style.width = "794px";
-  renderRoot.style.background = "#ffffff";
-  renderRoot.style.padding = "20px";
-  renderRoot.style.margin = "0";
-  renderRoot.style.display = "block";
-
-  renderRoot.appendChild(clone);
-  document.body.appendChild(renderRoot);
+  const element = document.querySelector("#appointmentSummary .appt-wrapper");
 
   const opt = {
-    margin: [10, 10, 10, 10],
+    margin: 10,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 2,
-      useCORS: true,
-      scrollY: 0
-    },
-    jsPDF: {
-      unit: 'mm',
-      format: 'a4',
-      orientation: 'portrait'
-    },
-    pagebreak: {
-      mode: ['css']
-    }
-};
+    html2canvas: { scale: 2 },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
+  html2pdf()
+    .set(opt)
+    .from(element)
+    .save();
 }
 
 
@@ -655,6 +631,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
