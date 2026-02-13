@@ -609,11 +609,18 @@ function apptDownloadPDF() {
   const element = document.querySelector("#appointmentSummary .appt-wrapper");
 
   const opt = {
-    margin: 10,
+    margin: 0,
     filename: fileName,
     image: { type: 'jpeg', quality: 1 },
-    html2canvas: { scale: 2 },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    html2canvas: {
+      scale: 2,
+      windowWidth: 900   // match your live layout width
+    },
+    jsPDF: {
+      unit: 'pt',
+      format: 'a4',
+      orientation: 'portrait'
+    }
   };
 
   html2pdf()
@@ -621,6 +628,7 @@ function apptDownloadPDF() {
     .from(element)
     .save();
 }
+
 
 
 </script>
@@ -631,6 +639,7 @@ function apptDownloadPDF() {
 </html>
 
 </div> 
+
 
 
 
