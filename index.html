@@ -368,6 +368,7 @@ button:hover {
     <div onclick="navigate('coverage')">Coverage Search</div>
     <div onclick="navigate('defects')">Manufacturer Defects Lookup</div>
     <div onclick="navigate('appointmentSummary')">Invoice/Summary Creator</div>
+    <div onclick="navigate('Hyperlinks')">Hyperlinks</div>
   </div>
 
   <p class="footer">
@@ -835,10 +836,89 @@ async function apptDownloadPDF() {
 
 </script>
 
+<!-- ================= HYPERLINKS ================= -->
+<section id="Hyperlinks" class="panel">
+
+<button class="back" onclick="navigate('home')">← Back</button>
+
+<h2>Hyperlinks</h2>
+<p class="subtext">Quick access to serial lookups, suppliers, and retail stores.</p>
+
+<div id="serviceMain">
+
+  <div style="margin-bottom:30px;">
+    <div style="font-weight:600; margin-bottom:12px;">Serial & Age Tools</div>
+    <div class="menu">
+      <div onclick="showSerialPanel()">Furnace & Water Heater Serial Checker</div>
+      <div onclick="window.open('https://homespy.io/', '_blank')">
+        Age Decoder (HomeSpy)
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom:30px;">
+    <div style="font-weight:600; margin-bottom:12px;">Parts Suppliers</div>
+    <div class="menu">
+      <div onclick="window.open('https://my.marcone.com/', '_blank')">Marcone</div>
+      <div onclick="window.open('https://www.tribles.com/', '_blank')">Tribles</div>
+      <div onclick="window.open('https://www.reliableparts.com/', '_blank')">Reliable Parts</div>
+    </div>
+  </div>
+
+  <div>
+    <div style="font-weight:600; margin-bottom:12px;">Retail Stores</div>
+    <div class="menu">
+      <div onclick="window.open('https://www.homedepot.com/', '_blank')">Home Depot</div>
+      <div onclick="window.open('https://www.lowes.com/', '_blank')">Lowe's</div>
+      <div onclick="window.open('https://www.bestbuy.com/', '_blank')">Best Buy</div>
+    </div>
+  </div>
+
+</div>
+
+<div id="serialSubPanel" style="display:none; margin-top:20px;">
+
+  <div style="font-weight:600; margin-bottom:14px;">
+    Furnace & Water Heater Serial Checker
+  </div>
+
+  <div class="menu">
+    <div onclick="window.open('https://www.hotwater.com/support/warranty-verification.html','_blank')">
+      A.O. Smith
+    </div>
+    <div onclick="window.open('https://www.rheem.com/warranties/warranty-verification/','_blank')">
+      Rheem
+    </div>
+    <div onclick="window.open('https://warrantycenter.bradfordwhite.com/','_blank')">
+      Bradford White
+    </div>
+    <div onclick="window.open('https://www.statewaterheaters.com/support/warranty-verification.html','_blank')">
+      State
+    </div>
+  </div>
+
+  <button class="back" onclick="hideSerialPanel()">← Back to Hyperlinks</button>
+
+</div>
+
+</section>
+
+<script>
+function showSerialPanel() {
+  document.getElementById("serviceMain").style.display = "none";
+  document.getElementById("serialSubPanel").style.display = "block";
+}
+
+function hideSerialPanel() {
+  document.getElementById("serialSubPanel").style.display = "none";
+  document.getElementById("serviceMain").style.display = "block";
+}
+</script>
 
 
 </body>
 </html>
+
 
 
 
