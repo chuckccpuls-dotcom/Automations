@@ -582,6 +582,125 @@ function searchDefects() {
 }
 </script>
 
+<script>
+/* ===== COVERAGE SCRIPT ===== */
+
+const coverageURL =
+"https://docs.google.com/spreadsheets/d/1lEFIg0YIUlRhNPyMhmXLvLMOxE0Xdc8IeYEYlL8VvAc/export?format=csv&gid=0";
+
+let coverageData = [];
+let coverageLoaded = false;
+
+/* ===== FETCH COVERAGE CSV ===== */
+
+fetch(coverageURL)
+  .then(res => res.text())
+  .then(csv => {
+    const rows = parseCSVSafe(csv);
+
+    coverageData = rows.slice(1).map(r => ({
+      main: (r[0] || "").trim(),
+      sub: (r[1] || "").trim(),
+      item: (r[2] || "").trim(),
+      status: (r[3] || "").trim()
+    }));
+
+    populateMainCategories();
+    coverageLoaded = true;
+  })
+  .catch(err => console.error("Coverage failed:", err));
+
+
+/* ===== POPULATE MAIN ===== */
+
+function populateMainCategories() {
+  const mainSelect = document.getElementById("mainCategory");
+  const mains = [...new Set(coverageData.map(d => d.main))];
+
+  mains.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m;
+    opt.textContent = m;
+    mainSelect.appendChild(opt);
+  });
+}
+
+
+/* ===== MAIN CHANGE ===== */
+
+document.getElementById("mainCategory").addEventListener("change", function() {
+  const subSelect = document.getElementById("subCategory");
+  const searchInput = document.getElementById("searchItem");
+  const selected = this.value;
+
+  subSelect.innerHTML = `<option value="">Select Sub Category</option>`;
+  searchInput.value = "";
+  searchInput.disabled = true;
+  document.getElementById("coverageResult").innerHTML = "";
+
+  if (!selected) {
+    subSelect.disabled = true;
+    return;
+  }
+
+  const subs = [...new Set(
+    coverageData
+      .filter(d => d.main === selected)
+      .map(d => d.sub)
+  )];
+
+  subs.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    subSelect.appendChild(opt);
+  });
+
+  subSelect.disabled = false;
+});
+
+
+/* ===== SUB CHANGE ===== */
+
+document.getElementById("subCategory").addEventListener("change", function() {
+  const searchInput = document.getElementById("searchItem");
+  searchInput.disabled = !this.value;
+  document.getElementById("coverageResult").innerHTML = "";
+});
+
+
+/* ===== SEARCH INPUT ===== */
+
+document.getElementById("searchItem").addEventListener("input", function() {
+  const query = this.value.toLowerCase();
+  const main = document.getElementById("mainCategory").value;
+  const sub = document.getElementById("subCategory").value;
+  const resultBox = document.getElementById("coverageResult");
+
+  if (!query) {
+    resultBox.innerHTML = "";
+    return;
+  }
+
+  const match = coverageData.find(d =>
+    d.main === main &&
+    d.sub === sub &&
+    d.item.toLowerCase().includes(query)
+  );
+
+  if (!match) {
+    resultBox.textContent = "Item not found in coverage list.";
+    return;
+  }
+
+  resultBox.innerHTML = `
+    <strong>Item:</strong> ${match.item}<br>
+    <strong>Status:</strong> ${match.status}
+  `;
+});
+</script>
+
+  
 <!-- ================= APPOINTMENT SUMMARY ================= -->
 <section id="appointmentSummary" class="panel">
 <button class="back" onclick="navigate('home')">← Back</button>
@@ -918,6 +1037,7 @@ function hideSerialPanel() {
 
 </body>
 </html>
+
 
 
 
